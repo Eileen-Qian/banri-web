@@ -1,3 +1,4 @@
+import "./assets/scss/all.scss";
 function App() {
 
   return (
