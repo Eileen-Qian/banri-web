@@ -61,11 +61,12 @@ function CheckOut() {
     const { message, ...user } = formData;
     setIsChecking(true);
     try {
-      await axios.post(`${API_BASE}/api/${API_PATH}/order`, {
+      const res = await axios.post(`${API_BASE}/api/${API_PATH}/order`, {
         data: { user, message },
-      });
+      });      
+      const orderId = res.data.orderId;
       fetchCart();
-      showSuccess(t("api.placeOrderSuccess"));
+      showSuccess(t("api.placeOrderSuccess", { orderId }));
       navigate("/products");
     } catch (error) {
       showError(error.response.data.message);

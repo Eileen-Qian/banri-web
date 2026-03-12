@@ -73,7 +73,7 @@
     "updateCartSuccess": "Quantity updated",
     "removeCartSuccess": "Removed from cart",
     "clearCartSuccess": "Cart cleared",
-    "placeOrderSuccess": "Order placed successfully",
+    "placeOrderSuccess": "Order placed successfully\nOrder ID: {{orderId}}",
     "loginSuccess": "Login successful",
     "logoutSuccess": "Logged out successfully",
     "createProductSuccess": "Product created",

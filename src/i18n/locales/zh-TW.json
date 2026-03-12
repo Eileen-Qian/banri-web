@@ -73,7 +73,7 @@
     "updateCartSuccess": "數量已更新",
     "removeCartSuccess": "已從購物車移除",
     "clearCartSuccess": "購物車已清空",
-    "placeOrderSuccess": "訂單送出成功",
+    "placeOrderSuccess": "訂單送出成功\n訂單編號：{{orderId}}",
     "loginSuccess": "登入成功",
     "logoutSuccess": "登出成功",
     "createProductSuccess": "產品新增成功",

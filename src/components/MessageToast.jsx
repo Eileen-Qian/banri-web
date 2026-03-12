@@ -25,7 +25,7 @@ function MessageToast() {
                 aria-label="Close"
               ></button>
             </div>
-            <div className="toast-body">{message.text}</div>
+            <div className="toast-body" style={{ whiteSpace: "pre-line" }}>{message.text}</div>
           </div>
         ))}
       </div>
