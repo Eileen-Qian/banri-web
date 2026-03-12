@@ -1,27 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, NavLink } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import logo from "../assets/images/BanriLogo 1.svg";
 import LanguageSwitcher from "../components/LanguageSwitcher";
+import DarkModeToggle from "../components/DarkModeToggle";
 
 function FrontendLayout() {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { t } = useTranslation();
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
   const closeMenu = () => setIsOpen(false);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <>
-      <nav className="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+      <nav
+        className={`navbar navbar-expand-lg bg-body-tertiary fixed-top${scrolled ? " navbar-scrolled" : ""}`}
+      >
         <div className="container-fluid">
           <NavLink className="navbar-brand" to="/" onClick={closeMenu}>
             <img src={logo} alt="Banri" />
           </NavLink>
 
           {/* 手機版：永遠顯示在漢堡按鈕左側，桌面隱藏 */}
-          <div className="d-lg-none ms-auto me-2">
+          <div className="d-lg-none ms-auto me-2 d-flex align-items-center gap-1">
+            <DarkModeToggle />
             <LanguageSwitcher />
           </div>
 
@@ -72,7 +83,8 @@ function FrontendLayout() {
             </ul>
 
             {/* 桌面版：在 collapse 內右側，手機隱藏 */}
-            <div className="d-none d-lg-flex align-items-center">
+            <div className="d-none d-lg-flex align-items-center gap-1">
+              <DarkModeToggle />
               <LanguageSwitcher />
             </div>
           </div>

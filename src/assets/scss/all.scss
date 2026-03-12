@@ -1,6 +1,12 @@
 @import "bootstrap/scss/functions";
 @import "./variables";
 @import "bootstrap/scss/bootstrap";
+
+// ── Partials ─────────────────────────────────────────────────────────────────
+@import "./navbar";
+@import "./dark-mode";
+
+// ── Global base ──────────────────────────────────────────────────────────────
 html,
 body {
   height: 100%;
@@ -33,8 +39,4 @@ img {
 
 .images {
   height: 150px;
-}
-
-.navbar .nav-link.active {
-  color: $primary !important;
 }

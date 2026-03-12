@@ -1,0 +1,46 @@
+// ── Navbar ───────────────────────────────────────────────────────────────────
+
+// Active link
+.navbar .nav-link.active {
+  color: $primary !important;
+}
+
+// Smooth transition for glass effect
+.navbar {
+  transition:
+    background-color 0.3s ease,
+    backdrop-filter 0.3s ease,
+    -webkit-backdrop-filter 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+
+  // Frosted glass — light mode
+  &.navbar-scrolled {
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    background-color: rgba(248, 249, 250, 0.75) !important;
+    box-shadow: 0 1px 20px rgba(0, 0, 0, 0.07);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+}
+
+// Dark mode toggle icon button
+.dark-mode-toggle {
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--bs-nav-link-color);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--bs-nav-link-hover-color);
+  }
+
+  i {
+    display: block;
+    transition: transform 0.3s ease, opacity 0.2s ease;
+  }
+
+  &:hover i {
+    transform: rotate(20deg) scale(1.15);
+  }
+}
