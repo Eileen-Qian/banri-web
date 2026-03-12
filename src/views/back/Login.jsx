@@ -3,14 +3,16 @@ import { useNavigate } from "react-router";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { ThreeDots } from "react-loader-spinner";
+import { useTranslation } from "react-i18next";
 
-import { emailValidatoin, passwordValidation } from "../../utils/validation";
+import { emailValidation, passwordValidation } from "../../utils/validation";
 import useMessage from "../../hooks/useMessage";
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
 function Login() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { showSuccess, showError } = useMessage();
   const {
     register,
@@ -47,7 +49,7 @@ function Login() {
       setTimeout(() => {
         navigate("/admin");
       }, 500);
-      showSuccess(res.data.message);
+      showSuccess(t("api.loginSuccess"));
     } catch (error) {
       showError(error.response.data.message);
     } finally {
@@ -56,6 +58,7 @@ function Login() {
       }, 1000);
     }
   };
+
   return (
     <>
       <div className="container login">
@@ -63,10 +66,12 @@ function Login() {
           className="btn btn-outline-primary"
           onClick={() => navigate("/")}
         >
-          回前台
+          {t("admin.login.backToFront")}
         </button>
         <div className="row justify-content-center">
-          <h1 className="h3 mb-3 font-weight-normal">請先登入</h1>
+          <h1 className="h3 mb-3 font-weight-normal">
+            {t("admin.login.title")}
+          </h1>
           <div className="col-8">
             <form
               id="form"
@@ -80,7 +85,7 @@ function Login() {
                   id="username"
                   name="username"
                   placeholder="name@example.com"
-                  {...register("username", emailValidatoin)}
+                  {...register("username", emailValidation(t))}
                   autoFocus
                 />
                 <label htmlFor="username">Email address</label>
@@ -95,7 +100,7 @@ function Login() {
                   id="password"
                   name="password"
                   placeholder="Password"
-                  {...register("password", passwordValidation)}
+                  {...register("password", passwordValidation(t))}
                 />
                 <label htmlFor="password">Password</label>
                 {errors.password && (
@@ -117,13 +122,15 @@ function Login() {
                     wrapperStyle={{ display: "flex", justifyContent: "center" }}
                   />
                 ) : (
-                  "登入"
+                  t("admin.login.submit")
                 )}
               </button>
             </form>
           </div>
         </div>
-        <p className="mt-5 mb-3 text-muted">&copy; 2024~∞ - 六角學院</p>
+        <p className="mt-5 mb-3 text-muted">
+          &copy; 2024~∞ - {t("admin.login.copyright")}
+        </p>
       </div>
     </>
   );

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import axios from "axios";
 import useMessage from "../hooks/useMessage";
@@ -7,8 +8,9 @@ const API_PATH = import.meta.env.VITE_API_PATH;
 
 function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
   const [tempData, setTempData] = useState(templateProduct);
+  const { t } = useTranslation();
   const { showSuccess, showError } = useMessage();
-  // 使用 useMemo 計算新資料，避免每次渲染都創建新物件
+
   const computedData = useMemo(() => {
     const src = templateProduct || {};
     return {
@@ -29,14 +31,16 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
       shipping: Array.isArray(src.shipping) ? [...src.shipping] : [],
     };
   }, [templateProduct]);
-  // 只在 computedData 改變時更新
+
   useEffect(() => {
     setTempData(computedData);
   }, [computedData]);
+
   const handleCopy = async () => {
     await navigator.clipboard.writeText(imageUrl);
-    showAlert("success", "複製成功");
+    showAlert("success", t("productModal.copySuccess"));
   };
+
   const handleModalInputChange = (e) => {
     const { name, value, checked, type } = e.target;
     setTempData((preData) => ({
@@ -49,7 +53,6 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
     setTempData((pre) => {
       const newImages = [...pre.imagesUrl];
       newImages[index] = value;
-
       if (
         value !== "" &&
         index === newImages.length - 1 &&
@@ -64,53 +67,34 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
       ) {
         newImages.pop();
       }
-
-      return {
-        ...pre,
-        imagesUrl: newImages,
-      };
+      return { ...pre, imagesUrl: newImages };
     });
   };
 
   const handleAddImage = () => {
-    setTempData((pre) => {
-      const newImages = [...pre.imagesUrl];
-      newImages.push("");
-      return {
-        ...pre,
-        imagesUrl: newImages,
-      };
-    });
+    setTempData((pre) => ({
+      ...pre,
+      imagesUrl: [...pre.imagesUrl, ""],
+    }));
   };
 
   const handleRemoveImage = (index) => {
-    setTempData((pre) => {
-      const newImages = pre.imagesUrl.filter((_, i) => i !== index);
-      return {
-        ...pre,
-        imagesUrl: newImages,
-      };
-    });
+    setTempData((pre) => ({
+      ...pre,
+      imagesUrl: pre.imagesUrl.filter((_, i) => i !== index),
+    }));
   };
 
   const [alertState, setAlertState] = useState({
     show: false,
-    type: "success", // success | danger
+    type: "success",
     message: "",
   });
-  const showAlert = (type, message) => {
-    setAlertState({
-      show: true,
-      type,
-      message,
-    });
 
+  const showAlert = (type, message) => {
+    setAlertState({ show: true, type, message });
     setTimeout(() => {
-      setAlertState({
-        show: false,
-        type: "success",
-        message: "",
-      });
+      setAlertState({ show: false, type: "success", message: "" });
     }, 1500);
   };
 
@@ -136,13 +120,19 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
     };
 
     if (!Array.isArray(tempData.shipping) || tempData.shipping.length === 0) {
-      showAlert("danger", "請至少選擇一項配送方式");
+      showAlert("danger", t("productModal.shippingRequired"));
       return;
     }
 
     try {
-      const res = await axios[method](url, productData);
-      showSuccess(res.data.message);
+      await axios[method](url, productData);
+      showSuccess(
+        t(
+          modalType === "edit"
+            ? "api.updateProductSuccess"
+            : "api.createProductSuccess",
+        ),
+      );
       getProducts();
       closeModal();
     } catch (error) {
@@ -152,10 +142,8 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
 
   const deleteProduct = async (id) => {
     try {
-      const res = await axios.delete(
-        `${API_BASE}/api/${API_PATH}/admin/product/${id}`,
-      );
-      showSuccess(res.data.message);
+      await axios.delete(`${API_BASE}/api/${API_PATH}/admin/product/${id}`);
+      showSuccess(t("api.deleteProductSuccess"));
       getProducts();
       closeModal();
     } catch (error) {
@@ -167,9 +155,7 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
 
   const uploadImage = async (e) => {
     const file = e.target.files[0];
-    if (!file) {
-      return;
-    }
+    if (!file) return;
     try {
       const formData = new FormData();
       formData.append("file-to-upload", file);
@@ -178,16 +164,16 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
         formData,
       );
       setImageUrl(res.data.imageUrl);
-      showSuccess("上傳成功");
+      showSuccess(t("api.uploadImageSuccess"));
     } catch (error) {
       showError(error.response.data.message);
     }
   };
 
   const SHIPPING_OPTIONS = [
-    { key: "home_delivery", label: "宅配" },
-    { key: "convenience_store", label: "超商" },
-    { key: "self_pickup", label: "自取" },
+    { key: "home_delivery", label: t("productModal.shippingHome") },
+    { key: "convenience_store", label: t("productModal.shippingStore") },
+    { key: "self_pickup", label: t("productModal.shippingSelf") },
   ];
 
   const handleShippingChange = (e) => {
@@ -203,6 +189,14 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
       return { ...prev, shipping: prevArr };
     });
   };
+
+  const modalTitleKey =
+    modalType === "delete"
+      ? "productModal.deleteTitle"
+      : modalType === "edit"
+        ? "productModal.editTitle"
+        : "productModal.createTitle";
+
   return (
     <>
       {alertState.show && (
@@ -231,19 +225,10 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
         <div className="modal-dialog modal-xl">
           <div className="modal-content border-0">
             <div
-              className={`modal-header bg-${
-                modalType === "delete" ? "danger" : "dark"
-              } text-white`}
+              className={`modal-header bg-${modalType === "delete" ? "danger" : "dark"} text-white`}
             >
               <h5 id="productModalLabel" className="modal-title">
-                <span>
-                  {modalType === "delete"
-                    ? "刪除"
-                    : modalType === "edit"
-                      ? "編輯"
-                      : "新增"}
-                  產品
-                </span>
+                {t(modalTitleKey)}
               </h5>
               <button
                 type="button"
@@ -255,9 +240,9 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
             <div className="modal-body">
               {modalType === "delete" ? (
                 <p className="fs-4">
-                  確定要刪除
-                  <span className="text-danger">{tempData.title}</span>
-                  嗎？
+                  {t("productModal.deleteConfirm")}{" "}
+                  <span className="text-danger">{tempData.title}</span>{" "}
+                  {t("productModal.deleteConfirmSuffix")}
                 </p>
               ) : (
                 <div className="row">
@@ -265,7 +250,7 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                     <div className="mb-2">
                       <div className="mb-3">
                         <label htmlFor="fileUpload" className="form-label">
-                          請上傳圖片
+                          {t("productModal.uploadImage")}
                         </label>
                         <input
                           className="form-control"
@@ -288,14 +273,14 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                       </p>
                       <div className="mb-3">
                         <label htmlFor="imageUrl" className="form-label">
-                          輸入圖片網址
+                          {t("productModal.imageUrl")}
                         </label>
                         <input
                           type="text"
                           id="imageUrl"
                           name="imageUrl"
                           className="form-control"
-                          placeholder="請輸入圖片連結"
+                          placeholder={t("productModal.imagePlaceholder")}
                           value={tempData.imageUrl}
                           onChange={(e) => handleModalInputChange(e)}
                         />
@@ -311,13 +296,13 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                     <div>
                       {tempData.imagesUrl.map((url, index) => (
                         <div key={index}>
-                          <label htmlFor="imageUrl" className="form-label">
-                            輸入圖片網址
+                          <label className="form-label">
+                            {t("productModal.imageUrl")}
                           </label>
                           <input
                             type="text"
                             className="form-control"
-                            placeholder={`圖片網址${index + 1}`}
+                            placeholder={`${t("productModal.subImagePlaceholder")} ${index + 1}`}
                             value={url}
                             onChange={(e) =>
                               handleModalImageChange(index, e.target.value)
@@ -333,11 +318,9 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                           <div>
                             <button
                               className="btn btn-outline-danger btn-sm d-block w-100"
-                              onClick={() => {
-                                handleRemoveImage(index);
-                              }}
+                              onClick={() => handleRemoveImage(index)}
                             >
-                              刪除圖片
+                              {t("productModal.deleteImage")}
                             </button>
                           </div>
                         </div>
@@ -347,11 +330,9 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                           "" && (
                           <button
                             className="btn btn-outline-primary btn-sm d-block w-100"
-                            onClick={() => {
-                              handleAddImage();
-                            }}
+                            onClick={() => handleAddImage()}
                           >
-                            新增圖片
+                            {t("productModal.addImage")}
                           </button>
                         )}
                     </div>
@@ -359,54 +340,52 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                   <div className="col-sm-8">
                     <div className="mb-3">
                       <label htmlFor="title" className="form-label">
-                        標題
+                        {t("productModal.title")}
                       </label>
                       <input
                         name="title"
                         id="title"
                         type="text"
                         className="form-control"
-                        placeholder="請輸入標題"
+                        placeholder={t("productModal.titlePlaceholder")}
                         value={tempData.title}
                         onChange={(e) => handleModalInputChange(e)}
                       />
                     </div>
-
                     <div className="row">
                       <div className="mb-3 col-md-6">
                         <label htmlFor="category" className="form-label">
-                          分類
+                          {t("productModal.category")}
                         </label>
                         <input
                           name="category"
                           id="category"
                           type="text"
                           className="form-control"
-                          placeholder="請輸入分類"
+                          placeholder={t("productModal.categoryPlaceholder")}
                           value={tempData.category}
                           onChange={(e) => handleModalInputChange(e)}
                         />
                       </div>
                       <div className="mb-3 col-md-6">
                         <label htmlFor="unit" className="form-label">
-                          單位
+                          {t("productModal.unit")}
                         </label>
                         <input
                           name="unit"
                           id="unit"
                           type="text"
                           className="form-control"
-                          placeholder="請輸入單位"
+                          placeholder={t("productModal.unitPlaceholder")}
                           value={tempData.unit}
                           onChange={(e) => handleModalInputChange(e)}
                         />
                       </div>
                     </div>
-
                     <div className="row">
                       <div className="mb-3 col-md-6">
                         <label htmlFor="origin_price" className="form-label">
-                          原價
+                          {t("productModal.originPrice")}
                         </label>
                         <input
                           name="origin_price"
@@ -414,14 +393,14 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                           type="number"
                           min="0"
                           className="form-control"
-                          placeholder="請輸入原價"
+                          placeholder={t("productModal.originPricePlaceholder")}
                           value={tempData.origin_price}
                           onChange={(e) => handleModalInputChange(e)}
                         />
                       </div>
                       <div className="mb-3 col-md-6">
                         <label htmlFor="price" className="form-label">
-                          售價
+                          {t("productModal.salePrice")}
                         </label>
                         <input
                           name="price"
@@ -429,42 +408,43 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                           type="number"
                           min="0"
                           className="form-control"
-                          placeholder="請輸入售價"
+                          placeholder={t("productModal.salePricePlaceholder")}
                           value={tempData.price}
                           onChange={(e) => handleModalInputChange(e)}
                         />
                       </div>
                     </div>
                     <hr />
-
                     <div className="mb-3">
                       <label htmlFor="description" className="form-label">
-                        產品描述
+                        {t("productModal.description")}
                       </label>
                       <textarea
                         name="description"
                         id="description"
                         className="form-control"
-                        placeholder="請輸入產品描述"
+                        placeholder={t("productModal.descriptionPlaceholder")}
                         value={tempData.description}
                         onChange={(e) => handleModalInputChange(e)}
                       ></textarea>
                     </div>
                     <div className="mb-3">
                       <label htmlFor="content" className="form-label">
-                        說明內容
+                        {t("productModal.content")}
                       </label>
                       <textarea
                         name="content"
                         id="content"
                         className="form-control"
-                        placeholder="請輸入說明內容"
+                        placeholder={t("productModal.contentPlaceholder")}
                         value={tempData.content}
                         onChange={(e) => handleModalInputChange(e)}
                       ></textarea>
                     </div>
                     <div className="mb-3">
-                      <label className="form-label">配送方式</label>
+                      <label className="form-label">
+                        {t("productModal.shipping")}
+                      </label>
                       <div>
                         {SHIPPING_OPTIONS.map((opt) => (
                           <div
@@ -493,7 +473,7 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                         {(!Array.isArray(tempData.shipping) ||
                           tempData.shipping.length === 0) && (
                           <div className="text-danger small">
-                            請至少選擇一項配送方式
+                            {t("productModal.shippingRequired")}
                           </div>
                         )}
                       </div>
@@ -512,7 +492,7 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                           className="form-check-label"
                           htmlFor="is_enabled"
                         >
-                          是否啟用
+                          {t("productModal.isEnabled")}
                         </label>
                       </div>
                     </div>
@@ -527,7 +507,7 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                   className="btn btn-danger"
                   onClick={() => deleteProduct(tempData.id)}
                 >
-                  刪除
+                  {t("common.delete")}
                 </button>
               ) : (
                 <>
@@ -537,7 +517,7 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                     data-bs-dismiss="modal"
                     onClick={() => closeModal()}
                   >
-                    取消
+                    {t("common.cancel")}
                   </button>
                   <button
                     type="button"
@@ -548,7 +528,7 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                       tempData.shipping.length === 0
                     }
                   >
-                    確認
+                    {t("common.confirm")}
                   </button>
                 </>
               )}

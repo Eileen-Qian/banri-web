@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Outlet, NavLink } from "react-router";
+import { useTranslation } from "react-i18next";
 
-import logo from "../assets/images/BanriLogo 1.svg"
+import logo from "../assets/images/BanriLogo 1.svg";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 function FrontendLayout() {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
   const closeMenu = () => setIsOpen(false);
@@ -16,6 +19,12 @@ function FrontendLayout() {
           <NavLink className="navbar-brand" to="/" onClick={closeMenu}>
             <img src={logo} alt="Banri" />
           </NavLink>
+
+          {/* 手機版：永遠顯示在漢堡按鈕左側，桌面隱藏 */}
+          <div className="d-lg-none ms-auto me-2">
+            <LanguageSwitcher />
+          </div>
+
           <button
             className="navbar-toggler"
             type="button"
@@ -26,29 +35,46 @@ function FrontendLayout() {
           >
             <span className="navbar-toggler-icon"></span>
           </button>
-          <div className={`collapse navbar-collapse ${isOpen ? "show" : ""}`} id="navbarSupportedContent">
+
+          <div
+            className={`collapse navbar-collapse ${isOpen ? "show" : ""}`}
+            id="navbarSupportedContent"
+          >
             <ul className="navbar-nav me-auto mb-2 mb-lg-0">
               <li className="nav-item">
-                <NavLink className="nav-link" to="/products" onClick={closeMenu}>
-                  產品列表
+                <NavLink
+                  className="nav-link"
+                  to="/products"
+                  onClick={closeMenu}
+                >
+                  {t("nav.products")}
                 </NavLink>
               </li>
               <li className="nav-item">
                 <NavLink className="nav-link" to="/cart" onClick={closeMenu}>
-                  購物車
+                  {t("nav.cart")}
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink className="nav-link" to="/checkout" onClick={closeMenu}>
-                  結帳頁面
+                <NavLink
+                  className="nav-link"
+                  to="/checkout"
+                  onClick={closeMenu}
+                >
+                  {t("nav.checkout")}
                 </NavLink>
               </li>
               <li className="nav-item">
                 <NavLink className="nav-link" to="/login" onClick={closeMenu}>
-                  前往後台
+                  {t("nav.admin")}
                 </NavLink>
               </li>
             </ul>
+
+            {/* 桌面版：在 collapse 內右側，手機隱藏 */}
+            <div className="d-none d-lg-flex align-items-center">
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       </nav>

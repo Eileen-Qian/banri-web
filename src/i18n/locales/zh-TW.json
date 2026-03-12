@@ -1,0 +1,183 @@
+{
+  "nav": {
+    "products": "產品列表",
+    "cart": "購物車",
+    "checkout": "結帳頁面",
+    "admin": "前往後台"
+  },
+  "common": {
+    "loading": "載入中...",
+    "cartEmpty": "購物車是空的",
+    "goShopping": "前往選購",
+    "addToCart": "加入購物車",
+    "total": "總計",
+    "image": "圖片",
+    "productName": "品名",
+    "quantity": "數量",
+    "subtotal": "小計",
+    "cancel": "取消",
+    "confirm": "確認",
+    "delete": "刪除",
+    "close": "關閉",
+    "save": "儲存變更"
+  },
+  "products": {
+    "allCategories": "全部分類",
+    "viewDetail": "查看細節"
+  },
+  "cart": {
+    "title": "購物車",
+    "goCheckout": "前往結帳",
+    "delete": "刪除",
+    "action": "操作"
+  },
+  "checkout": {
+    "title": "結帳頁面",
+    "backToCart": "回購物車",
+    "email": "Email",
+    "emailPlaceholder": "請輸入 Email",
+    "name": "收件人姓名",
+    "namePlaceholder": "請輸入姓名",
+    "phone": "收件人電話",
+    "phonePlaceholder": "請輸入電話",
+    "address": "收件人地址",
+    "addressPlaceholder": "請輸入地址",
+    "message": "留言",
+    "submitOrder": "送出訂單"
+  },
+  "home": {
+    "title": "首頁"
+  },
+  "validation": {
+    "emailRequired": "請輸入 Email",
+    "emailFormat": "Email 格式不正確",
+    "passwordRequired": "請輸入密碼",
+    "passwordMinLength": "密碼最少需 6 碼",
+    "nameRequired": "請輸入 收件人姓名",
+    "phoneRequired": "請輸入手機號碼",
+    "phoneFormat": "請輸入正確的台灣手機號碼格式 (09xxxxxxxx)",
+    "addressRequired": "請輸入 收件人地址"
+  },
+  "language": {
+    "zhTW": "繁體中文",
+    "en": "English"
+  },
+  "toast": {
+    "success": "成功",
+    "error": "失敗"
+  },
+  "api": {
+    "addCartSuccess": "已加入購物車",
+    "updateCartSuccess": "數量已更新",
+    "removeCartSuccess": "已從購物車移除",
+    "placeOrderSuccess": "訂單送出成功",
+    "loginSuccess": "登入成功",
+    "logoutSuccess": "登出成功",
+    "createProductSuccess": "產品新增成功",
+    "updateProductSuccess": "產品更新成功",
+    "deleteProductSuccess": "產品刪除成功",
+    "uploadImageSuccess": "圖片上傳成功",
+    "updateOrderSuccess": "訂單更新成功",
+    "deleteOrderSuccess": "訂單刪除成功"
+  },
+  "admin": {
+    "nav": {
+      "products": "後台產品列表",
+      "orders": "後台訂單列表",
+      "backToFront": "回前台",
+      "logout": "登出"
+    },
+    "login": {
+      "title": "請先登入",
+      "submit": "登入",
+      "backToFront": "回前台",
+      "copyright": "六角學院"
+    },
+    "products": {
+      "title": "產品列表",
+      "create": "建立新的產品",
+      "category": "分類",
+      "name": "產品名稱",
+      "originPrice": "原價",
+      "price": "售價",
+      "status": "是否啟用",
+      "action": "編輯",
+      "enabled": "啟用",
+      "disabled": "未啟用",
+      "edit": "編輯",
+      "delete": "刪除"
+    },
+    "orders": {
+      "title": "訂單列表",
+      "orderId": "訂單編號",
+      "email": "訂購人 Email",
+      "name": "訂購人姓名",
+      "amount": "金額",
+      "payStatus": "付款狀態",
+      "createdAt": "建立時間",
+      "action": "操作",
+      "paid": "已付款",
+      "unpaid": "未付款",
+      "view": "查看",
+      "delete": "刪除"
+    }
+  },
+  "productModal": {
+    "createTitle": "新增產品",
+    "editTitle": "編輯產品",
+    "deleteTitle": "刪除產品",
+    "deleteConfirm": "確定要刪除",
+    "deleteConfirmSuffix": "嗎？",
+    "uploadImage": "請上傳圖片",
+    "imageUrl": "輸入圖片網址",
+    "imagePlaceholder": "請輸入圖片連結",
+    "subImagePlaceholder": "圖片網址",
+    "deleteImage": "刪除圖片",
+    "addImage": "新增圖片",
+    "title": "標題",
+    "titlePlaceholder": "請輸入標題",
+    "category": "分類",
+    "categoryPlaceholder": "請輸入分類",
+    "unit": "單位",
+    "unitPlaceholder": "請輸入單位",
+    "originPrice": "原價",
+    "originPricePlaceholder": "請輸入原價",
+    "salePrice": "售價",
+    "salePricePlaceholder": "請輸入售價",
+    "description": "產品描述",
+    "descriptionPlaceholder": "請輸入產品描述",
+    "content": "說明內容",
+    "contentPlaceholder": "請輸入說明內容",
+    "shipping": "配送方式",
+    "shippingRequired": "請至少選擇一項配送方式",
+    "shippingHome": "宅配",
+    "shippingStore": "超商",
+    "shippingSelf": "自取",
+    "isEnabled": "是否啟用",
+    "copySuccess": "複製成功"
+  },
+  "orderModal": {
+    "deleteTitle": "刪除訂單",
+    "viewTitle": "訂單詳情",
+    "deleteConfirm": "確定要刪除訂單",
+    "deleteConfirmSuffix": "嗎？",
+    "orderInfo": "訂單資訊",
+    "orderId": "訂單編號",
+    "createdAt": "建立時間",
+    "customerInfo": "訂購人資訊",
+    "name": "姓名",
+    "phone": "電話",
+    "address": "地址",
+    "message": "留言",
+    "products": "訂購產品",
+    "productName": "品名",
+    "qty": "數量",
+    "subtotal": "小計",
+    "total": "總計",
+    "payStatus": "付款狀態",
+    "paid": "已付款",
+    "unpaid": "未付款",
+    "confirmDelete": "確認刪除",
+    "save": "儲存變更"
+  }
+}

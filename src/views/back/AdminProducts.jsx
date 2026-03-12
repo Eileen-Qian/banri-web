@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import * as bootstrap from "bootstrap";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import { useTranslation } from "react-i18next";
 
 import "../../assets/scss/all.scss";
 
@@ -31,6 +31,7 @@ const INITIAL_TEMPLATE_DATA = {
 
 function AdminProducts() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [products, setProducts] = useState([]);
   const [templateProduct, setTemplateProduct] = useState(INITIAL_TEMPLATE_DATA);
@@ -55,7 +56,6 @@ function AdminProducts() {
   const productModalRef = useRef(null);
 
   useEffect(() => {
-    // 從 Cookie 取得 Token
     const token = document.cookie
       .split("; ")
       .find((row) => row.startsWith("hexW2Token="))
@@ -68,7 +68,6 @@ function AdminProducts() {
       keyboard: false,
     });
 
-    // Modal 關閉時移除焦點
     document
       .querySelector("#productModal")
       .addEventListener("hide.bs.modal", () => {
@@ -91,13 +90,11 @@ function AdminProducts() {
 
   const openModal = (type, product) => {
     setModalType(type);
-    // 不要每次都解構重建，直接傳遞
     if (type === "create") {
       setTemplateProduct(INITIAL_TEMPLATE_DATA);
     } else {
       setTemplateProduct(product);
     }
-    // 延遲開啟 modal，確保 state 更新完成
     setTimeout(() => {
       productModalRef.current.show();
     }, 0);
@@ -115,19 +112,19 @@ function AdminProducts() {
             className="btn btn-primary"
             onClick={() => openModal("create", INITIAL_TEMPLATE_DATA)}
           >
-            建立新的產品
+            {t("admin.products.create")}
           </button>
         </div>
-        <h2>產品列表</h2>
+        <h2>{t("admin.products.title")}</h2>
         <table className="table mt-4">
           <thead>
             <tr>
-              <th>分類</th>
-              <th>產品名稱</th>
-              <th>原價</th>
-              <th>售價</th>
-              <th>是否啟用</th>
-              <th>編輯</th>
+              <th>{t("admin.products.category")}</th>
+              <th>{t("admin.products.name")}</th>
+              <th>{t("admin.products.originPrice")}</th>
+              <th>{t("admin.products.price")}</th>
+              <th>{t("admin.products.status")}</th>
+              <th>{t("admin.products.action")}</th>
             </tr>
           </thead>
           <tbody>
@@ -138,27 +135,25 @@ function AdminProducts() {
                 <td>{currency(product.origin_price)}</td>
                 <td>{currency(product.price)}</td>
                 <td className={product.is_enabled ? "text-success" : ""}>
-                  {product.is_enabled ? "啟用" : "未啟用"}
+                  {product.is_enabled
+                    ? t("admin.products.enabled")
+                    : t("admin.products.disabled")}
                 </td>
                 <td>
-                  <div
-                    className="btn-group"
-                    role="group"
-                    aria-label="Basic example"
-                  >
+                  <div className="btn-group" role="group">
                     <button
                       type="button"
                       className="btn btn-outline-primary btn-sm"
                       onClick={() => openModal("edit", product)}
                     >
-                      編輯
+                      {t("admin.products.edit")}
                     </button>
                     <button
                       type="button"
                       className="btn btn-outline-danger btn-sm"
                       onClick={() => openModal("delete", product)}
                     >
-                      刪除
+                      {t("admin.products.delete")}
                     </button>
                   </div>
                 </td>

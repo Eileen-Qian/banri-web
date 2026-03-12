@@ -5,6 +5,7 @@ const API_PATH = import.meta.env.VITE_API_PATH;
 import { useEffect, useState } from "react";
 import { Oval } from "react-loader-spinner";
 import { NavLink } from "react-router";
+import { useTranslation } from "react-i18next";
 import { currency } from "../../utils/currency";
 import useMessage from "../../hooks/useMessage.jsx";
 
@@ -16,6 +17,7 @@ const fetchCart = async () => {
 function Cart() {
   const [cart, setCart] = useState(null);
   const [loadingCartId, setLoadingCartId] = useState(null);
+  const { t } = useTranslation();
   const { showSuccess, showError } = useMessage();
 
   useEffect(() => {
@@ -43,14 +45,11 @@ function Cart() {
   const updateCartItem = async (cartId, productId, qty) => {
     setLoadingCartId(cartId);
     try {
-      const res = await axios.put(
-        `${API_BASE}/api/${API_PATH}/cart/${cartId}`,
-        {
-          data: { product_id: productId, qty },
-        },
-      );      
+      await axios.put(`${API_BASE}/api/${API_PATH}/cart/${cartId}`, {
+        data: { product_id: productId, qty },
+      });
       getCart();
-      showSuccess(res.data.message);
+      showSuccess(t("api.updateCartSuccess"));
     } catch (error) {
       showError(error.response.data.message);
     } finally {
@@ -61,11 +60,9 @@ function Cart() {
   const removeCartItem = async (cartId) => {
     setLoadingCartId(cartId);
     try {
-      const res = await axios.delete(
-        `${API_BASE}/api/${API_PATH}/cart/${cartId}`,
-      );
+      await axios.delete(`${API_BASE}/api/${API_PATH}/cart/${cartId}`);
       getCart();
-      showSuccess(res.data.message);
+      showSuccess(t("api.removeCartSuccess"));
     } catch (error) {
       showError(error.response.data.message);
     } finally {
@@ -73,14 +70,15 @@ function Cart() {
     }
   };
 
-  if (!cart) return <p className="text-center fs-2 mt-5">載入中...</p>;
+  if (!cart)
+    return <p className="text-center fs-2 mt-5">{t("common.loading")}</p>;
 
   if (cart.carts.length === 0) {
     return (
       <>
-        <p className="text-center fs-4 mt-5">購物車是空的</p>
+        <p className="text-center fs-4 mt-5">{t("common.cartEmpty")}</p>
         <NavLink className="nav-link" to="/products">
-          <button className="btn btn-primary">前往選購</button>
+          <button className="btn btn-primary">{t("common.goShopping")}</button>
         </NavLink>
       </>
     );
@@ -88,20 +86,20 @@ function Cart() {
 
   return (
     <div className="container mt-5">
-      <h2 className="mb-4">購物車</h2>
+      <h2 className="mb-4">{t("cart.title")}</h2>
       <div className="d-flex justify-content-end">
         <NavLink className="nav-link" to="/checkout">
-          <button className="btn btn-primary">前往結帳</button>
+          <button className="btn btn-primary">{t("cart.goCheckout")}</button>
         </NavLink>
       </div>
       <table className="table align-middle">
         <thead>
           <tr>
-            <th style={{ width: "100px" }}>圖片</th>
-            <th>品名</th>
-            <th style={{ width: "200px" }}>數量</th>
-            <th style={{ width: "120px" }}>小計</th>
-            <th style={{ width: "80px" }}>操作</th>
+            <th style={{ width: "100px" }}>{t("common.image")}</th>
+            <th>{t("common.productName")}</th>
+            <th style={{ width: "200px" }}>{t("common.quantity")}</th>
+            <th style={{ width: "120px" }}>{t("common.subtotal")}</th>
+            <th style={{ width: "80px" }}>{t("cart.action")}</th>
           </tr>
         </thead>
         <tbody>
@@ -111,11 +109,7 @@ function Cart() {
                 <img
                   src={item.product.imageUrl}
                   alt={item.product.title}
-                  style={{
-                    width: "80px",
-                    height: "80px",
-                    objectFit: "cover",
-                  }}
+                  style={{ width: "80px", height: "80px", objectFit: "cover" }}
                 />
               </td>
               <td>{item.product.title}</td>
@@ -135,8 +129,6 @@ function Cart() {
                         height="20"
                         width="20"
                         ariaLabel="oval-loading"
-                        wrapperStyle={{}}
-                        wrapperClass=""
                       />
                     ) : (
                       "-"
@@ -162,8 +154,6 @@ function Cart() {
                         height="20"
                         width="20"
                         ariaLabel="oval-loading"
-                        wrapperStyle={{}}
-                        wrapperClass=""
                       />
                     ) : (
                       "+"
@@ -183,11 +173,9 @@ function Cart() {
                       height="20"
                       width="20"
                       ariaLabel="oval-loading"
-                      wrapperStyle={{}}
-                      wrapperClass=""
                     />
                   ) : (
-                    "刪除"
+                    t("cart.delete")
                   )}
                 </button>
               </td>
@@ -197,7 +185,7 @@ function Cart() {
         <tfoot>
           <tr>
             <td colSpan="3" className="text-end fw-bold">
-              總計
+              {t("common.total")}
             </td>
             <td colSpan="2" className="fw-bold">
               NT$ {currency(cart.final_total)}

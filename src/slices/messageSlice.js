@@ -8,14 +8,12 @@ export const messageSlice = createSlice({
       state.push({
         id: action.payload.id,
         type: action.payload.success ? "success" : "danger",
-        title: action.payload.success ? "成功" : "失敗",
+        title: action.payload.success ? "toast.success" : "toast.error",
         text: action.payload.message,
       });
     },
     removeMessage(state, action) {
-      const index = state.findIndex(
-        (message) => message.id === action.payload,
-      );
+      const index = state.findIndex((message) => message.id === action.payload);
       if (index !== -1) {
         state.splice(index, 1);
       }
@@ -27,8 +25,9 @@ export const createAsyncMessage = createAsyncThunk(
   "message/createAsyncMessage",
   async (payload, { dispatch, requestId }) => {
     // 確保 ID 是唯一的，如果 requestId 無效則使用時間戳
-    const messageId = requestId || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
+    const messageId =
+      requestId || `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
     dispatch(
       createMessage({
         ...payload,

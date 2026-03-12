@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import axios from "axios";
 const API_BASE = import.meta.env.VITE_API_BASE;
@@ -9,14 +10,14 @@ import useMessage from "../hooks/useMessage";
 
 function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
   const { showSuccess, showError } = useMessage();
-  const [isPaid, setIsPaid] = useState(false);
-
-  useEffect(() => {
-    const setPaymentStatus = () => {
-      setIsPaid(!!tempOrder.is_paid);
-    };
-    setPaymentStatus();
-  }, [tempOrder]);
+  const { t } = useTranslation();
+  const [isPaid, setIsPaid] = useState(!!tempOrder.is_paid);
+  // render-time adjustment: sync isPaid when a different order is opened
+  const [prevOrderId, setPrevOrderId] = useState(tempOrder.id);
+  if (prevOrderId !== tempOrder.id) {
+    setPrevOrderId(tempOrder.id);
+    setIsPaid(!!tempOrder.is_paid);
+  }
 
   const formatDate = (timestamp) => {
     if (!timestamp) return "-";
@@ -30,18 +31,13 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
 
   const updateOrder = async () => {
     try {
-      const res = await axios.put(
+      await axios.put(
         `${API_BASE}/api/${API_PATH}/admin/order/${tempOrder.id}`,
-        {
-          data: {
-            ...tempOrder,
-            is_paid: isPaid,
-          },
-        },
+        { data: { ...tempOrder, is_paid: isPaid } },
       );
       fetchOrders();
       closeModal();
-      showSuccess(res.data.message);
+      showSuccess(t("api.updateOrderSuccess"));
     } catch (error) {
       showError(error.response.data.message);
     }
@@ -49,12 +45,12 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
 
   const deleteOrder = async () => {
     try {
-      const res = await axios.delete(
+      await axios.delete(
         `${API_BASE}/api/${API_PATH}/admin/order/${tempOrder.id}`,
       );
       fetchOrders();
       closeModal();
-      showSuccess(res.data.message);
+      showSuccess(t("api.deleteOrderSuccess"));
     } catch (error) {
       showError(error.response.data.message);
     }
@@ -73,12 +69,12 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
       <div className="modal-dialog modal-lg">
         <div className="modal-content border-0">
           <div
-            className={`modal-header bg-${
-              modalType === "delete" ? "danger" : "dark"
-            } text-white`}
+            className={`modal-header bg-${modalType === "delete" ? "danger" : "dark"} text-white`}
           >
             <h5 id="orderModalLabel" className="modal-title">
-              {modalType === "delete" ? "刪除訂單" : "訂單詳情"}
+              {modalType === "delete"
+                ? t("orderModal.deleteTitle")
+                : t("orderModal.viewTitle")}
             </h5>
             <button
               type="button"
@@ -90,19 +86,19 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
           <div className="modal-body">
             {modalType === "delete" ? (
               <p className="fs-4">
-                確定要刪除訂單
-                <span className="text-danger"> {tempOrder.id} </span>
-                嗎？
+                {t("orderModal.deleteConfirm")}{" "}
+                <span className="text-danger">{tempOrder.id}</span>{" "}
+                {t("orderModal.deleteConfirmSuffix")}
               </p>
             ) : (
               <>
                 <div className="mb-3">
-                  <h6>訂單資訊</h6>
+                  <h6>{t("orderModal.orderInfo")}</h6>
                   <table className="table table-borderless table-sm">
                     <tbody>
                       <tr>
                         <td className="text-muted" style={{ width: "120px" }}>
-                          訂單編號
+                          {t("orderModal.orderId")}
                         </td>
                         <td
                           className="text-start"
@@ -112,7 +108,9 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                         </td>
                       </tr>
                       <tr>
-                        <td className="text-muted">建立時間</td>
+                        <td className="text-muted">
+                          {t("orderModal.createdAt")}
+                        </td>
                         <td className="text-start">
                           {formatDate(tempOrder.create_at)}
                         </td>
@@ -122,7 +120,7 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                 </div>
                 <hr />
                 <div className="mb-3">
-                  <h6>訂購人資訊</h6>
+                  <h6>{t("orderModal.customerInfo")}</h6>
                   <table className="table table-borderless table-sm">
                     <tbody>
                       <tr>
@@ -132,15 +130,17 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                         <td className="text-start">{tempOrder.user?.email}</td>
                       </tr>
                       <tr>
-                        <td className="text-muted">姓名</td>
+                        <td className="text-muted">{t("orderModal.name")}</td>
                         <td className="text-start">{tempOrder.user?.name}</td>
                       </tr>
                       <tr>
-                        <td className="text-muted">電話</td>
+                        <td className="text-muted">{t("orderModal.phone")}</td>
                         <td className="text-start">{tempOrder.user?.tel}</td>
                       </tr>
                       <tr>
-                        <td className="text-muted">地址</td>
+                        <td className="text-muted">
+                          {t("orderModal.address")}
+                        </td>
                         <td className="text-start">
                           {tempOrder.user?.address}
                         </td>
@@ -152,21 +152,21 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                   <>
                     <hr />
                     <div className="mb-3">
-                      <h6>留言</h6>
+                      <h6>{t("orderModal.message")}</h6>
                       <p>{tempOrder.message}</p>
                     </div>
                   </>
                 )}
                 <hr />
                 <div className="mb-3">
-                  <h6>訂購產品</h6>
+                  <h6>{t("orderModal.products")}</h6>
                   <table className="table align-middle">
                     <thead>
                       <tr>
-                        <th>品名</th>
-                        <th style={{ width: "80px" }}>數量</th>
+                        <th>{t("orderModal.productName")}</th>
+                        <th style={{ width: "80px" }}>{t("orderModal.qty")}</th>
                         <th style={{ width: "120px" }} className="text-end">
-                          小計
+                          {t("orderModal.subtotal")}
                         </th>
                       </tr>
                     </thead>
@@ -184,7 +184,7 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                     <tfoot>
                       <tr>
                         <td colSpan="2" className="text-end fw-bold">
-                          總計
+                          {t("orderModal.total")}
                         </td>
                         <td className="text-end fw-bold">
                           NT$ {currency(tempOrder.total)}
@@ -195,7 +195,7 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                 </div>
                 <hr />
                 <div className="mb-3">
-                  <h6>付款狀態</h6>
+                  <h6>{t("orderModal.payStatus")}</h6>
                   <div className="form-check form-switch">
                     <input
                       className="form-check-input"
@@ -208,7 +208,7 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                       className={`form-check-label ${isPaid ? "text-success" : "text-danger"}`}
                       htmlFor="isPaid"
                     >
-                      {isPaid ? "已付款" : "未付款"}
+                      {isPaid ? t("orderModal.paid") : t("orderModal.unpaid")}
                     </label>
                   </div>
                 </div>
@@ -223,14 +223,14 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                   className="btn btn-outline-secondary"
                   data-bs-dismiss="modal"
                 >
-                  取消
+                  {t("common.cancel")}
                 </button>
                 <button
                   type="button"
                   className="btn btn-danger"
                   onClick={deleteOrder}
                 >
-                  確認刪除
+                  {t("orderModal.confirmDelete")}
                 </button>
               </>
             ) : (
@@ -240,14 +240,14 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                   className="btn btn-outline-secondary"
                   data-bs-dismiss="modal"
                 >
-                  關閉
+                  {t("common.close")}
                 </button>
                 <button
                   type="button"
                   className="btn btn-primary"
                   onClick={updateOrder}
                 >
-                  儲存變更
+                  {t("orderModal.save")}
                 </button>
               </>
             )}

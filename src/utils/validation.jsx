@@ -1,24 +1,33 @@
-export const emailValidatoin = {
-  required: "請輸入 Email",
+const phonePattern = /^09\d{8}$/;
+
+export const emailValidation = (t) => ({
+  required: t("validation.emailRequired"),
   pattern: {
     value: /^\S+@\S+$/i,
-    message: "Email 格式不正確",
+    message: t("validation.emailFormat"),
   },
-};
+});
 
-export const passwordValidation = {
-  required: "請輸入密碼",
+export const passwordValidation = (t) => ({
+  required: t("validation.passwordRequired"),
   minLength: {
     value: 6,
-    message: "密碼最少需 6 碼",
+    message: t("validation.passwordMinLength"),
   },
-};
+});
 
-const phonePattern = /^09\d{8}$/;
-export const taiwanPhoneValidation = {
-  required: "請輸入手機號碼",
+export const taiwanPhoneValidation = (t) => ({
+  required: t("validation.phoneRequired"),
   pattern: {
     value: phonePattern,
-    message: "請輸入正確的台灣手機號碼格式 (09xxxxxxxx)",
+    message: t("validation.phoneFormat"),
   },
-};
+});
+
+export const nameValidation = (t) => ({
+  required: t("validation.nameRequired"),
+});
+
+export const addressValidation = (t) => ({
+  required: t("validation.addressRequired"),
+});

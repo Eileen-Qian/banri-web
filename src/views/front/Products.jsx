@@ -4,16 +4,14 @@ const API_PATH = import.meta.env.VITE_API_PATH;
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 
-import Pagination from "../..//components/Pagination.jsx";
+import Pagination from "../../components/Pagination.jsx";
 import useMessage from "../../hooks/useMessage.jsx";
 
-// 純 API 呼叫，不含 setState，放在元件外部
 const fetchProducts = async (page = 1, category = "") => {
   const url = `${API_BASE}/api/${API_PATH}/products?page=${page}${category ? `&category=${category}` : ""}`;
   const res = await axios.get(url);
-  console.log(res);
-  
   return res.data;
 };
 
@@ -24,6 +22,7 @@ const fetchAllCategories = async () => {
 
 function Products() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [products, setProducts] = useState([]);
   const [pagination, setPagination] = useState({
     current_page: 1,
@@ -35,7 +34,6 @@ function Products() {
   const [currentCategory, setCurrentCategory] = useState("");
   const { showSuccess, showError } = useMessage();
 
-  // useEffect 內部定義完整的 async 函式，避免 cascading renders
   useEffect(() => {
     const init = async () => {
       try {
@@ -53,7 +51,6 @@ function Products() {
     init();
   }, [showError]);
 
-  // 給 Pagination 和其他事件使用的函式
   const getProducts = async (page = 1, category = currentCategory) => {
     try {
       const data = await fetchProducts(page, category);
@@ -75,14 +72,11 @@ function Products() {
   };
 
   const addCart = async (id, qty = 1) => {
-    const data = {
-      product_id: id,
-      qty,
-    };
+    const data = { product_id: id, qty };
     try {
       const url = `${API_BASE}/api/${API_PATH}/cart`;
-      const res = await axios.post(url, { data });
-      showSuccess(res.data.message);
+      await axios.post(url, { data });
+      showSuccess(t("api.addCartSuccess"));
     } catch (error) {
       showError(error.response.data.message);
     }
@@ -90,7 +84,6 @@ function Products() {
 
   return (
     <div className="container">
-      {/* 分類下拉選單 */}
       <div className="mt-4">
         <select
           className="form-select"
@@ -98,7 +91,7 @@ function Products() {
           value={currentCategory}
           onChange={handleCategoryChange}
         >
-          <option value="">全部分類</option>
+          <option value="">{t("products.allCategories")}</option>
           {categories.map((category) => (
             <option key={category} value={category}>
               {category}
@@ -130,14 +123,14 @@ function Products() {
                     className="btn btn-outline-primary"
                     onClick={() => goSingleProduct(product.id)}
                   >
-                    查看細節
+                    {t("products.viewDetail")}
                   </button>
                   <button
                     type="button"
                     className="btn btn-primary"
                     onClick={() => addCart(product.id)}
                   >
-                    加入購物車
+                    {t("common.addToCart")}
                   </button>
                 </div>
               </div>

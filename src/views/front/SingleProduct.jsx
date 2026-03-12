@@ -5,6 +5,7 @@ const API_PATH = import.meta.env.VITE_API_PATH;
 import { currency } from "../../utils/currency";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
+import { useTranslation } from "react-i18next";
 import useMessage from "../../hooks/useMessage.jsx";
 
 function SingleProduct() {
@@ -12,6 +13,7 @@ function SingleProduct() {
   const [mainImage, setMainImage] = useState("");
   const [qty, setQty] = useState(1);
   const { id } = useParams();
+  const { t } = useTranslation();
   const { showSuccess, showError } = useMessage();
 
   useEffect(() => {
@@ -31,20 +33,18 @@ function SingleProduct() {
   }, [id, showSuccess, showError]);
 
   const addCart = async (id, qty = 1) => {
-    const data = {
-      product_id: id,
-      qty,
-    };
+    const data = { product_id: id, qty };
     try {
       const url = `${API_BASE}/api/${API_PATH}/cart`;
-      const res = await axios.post(url, { data });
-      showSuccess(res.data.message);
+      await axios.post(url, { data });
+      showSuccess(t("api.addCartSuccess"));
     } catch (error) {
       showError(error.response.data.message);
     }
   };
 
-  if (!product) return <p className="text-center fs-2 mt-5">載入中...</p>;
+  if (!product)
+    return <p className="text-center fs-2 mt-5">{t("common.loading")}</p>;
 
   return (
     <div className="container mt-5">
@@ -135,7 +135,7 @@ function SingleProduct() {
             className="btn btn-primary w-100"
             onClick={() => addCart(product.id, qty)}
           >
-            加入購物車
+            {t("common.addToCart")}
           </button>
         </div>
       </div>

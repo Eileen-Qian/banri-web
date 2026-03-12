@@ -2,13 +2,14 @@ import axios from "axios";
 const API_BASE = import.meta.env.VITE_API_BASE;
 const API_PATH = import.meta.env.VITE_API_PATH;
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { ThreeDots } from "react-loader-spinner";
-import { emailValidatoin, taiwanPhoneValidation } from "../../utils/validation";
+import { useTranslation } from "react-i18next";
 import { currency } from "../../utils/currency";
 import useMessage from "../../hooks/useMessage";
+import { emailValidation, taiwanPhoneValidation, nameValidation, addressValidation } from "../../utils/validation";
 
 const fetchCart = async () => {
   const res = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
@@ -17,6 +18,7 @@ const fetchCart = async () => {
 
 function CheckOut() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [cart, setCart] = useState(null);
   const [isChecking, setIsChecking] = useState(null);
   const { showSuccess, showError } = useMessage();
@@ -36,30 +38,34 @@ function CheckOut() {
   const {
     register,
     handleSubmit,
+    trigger,
     formState: { errors },
   } = useForm({
     mode: "onChange",
-    defaultValues: {
-      email: "",
-      name: "",
-      tel: "",
-      address: "",
-    },
+    defaultValues: { email: "", name: "", tel: "", address: "" },
   });
+
+  // 語言切換後，對已顯示錯誤的欄位重新觸發驗證，使 error message 更新至新語言
+  const errorsRef = useRef(errors);
+  errorsRef.current = errors;
+  useEffect(() => {
+    const errorFields = Object.keys(errorsRef.current);
+    if (errorFields.length > 0) {
+      trigger(errorFields);
+    }
+    // trigger 為穩定 ref，不需加入；只在語言切換時執行
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [i18n.language]);
 
   const onSubmit = async (formData) => {
     const { message, ...user } = formData;
-    const data = {
-      user,
-      message,
-    };
     setIsChecking(true);
     try {
-      const res = await axios.post(`${API_BASE}/api/${API_PATH}/order`, {
-        data,
+      await axios.post(`${API_BASE}/api/${API_PATH}/order`, {
+        data: { user, message },
       });
       fetchCart();
-      showSuccess(res.data.message);
+      showSuccess(t("api.placeOrderSuccess"));
       navigate("/products");
     } catch (error) {
       showError(error.response.data.message);
@@ -68,14 +74,15 @@ function CheckOut() {
     }
   };
 
-  if (!cart) return <p className="text-center fs-2 mt-5">載入中...</p>;
+  if (!cart)
+    return <p className="text-center fs-2 mt-5">{t("common.loading")}</p>;
 
   if (cart.carts.length === 0) {
     return (
       <>
-        <p className="text-center fs-4 mt-5">購物車是空的</p>
+        <p className="text-center fs-4 mt-5">{t("common.cartEmpty")}</p>
         <NavLink className="nav-link" to="/products">
-          <button className="btn btn-primary">前往選購</button>
+          <button className="btn btn-primary">{t("common.goShopping")}</button>
         </NavLink>
       </>
     );
@@ -83,23 +90,18 @@ function CheckOut() {
 
   return (
     <div className="container mt-5">
-      <h2 className="mb-4">結帳頁面</h2>
+      <h2 className="mb-4">{t("checkout.title")}</h2>
       <NavLink className="nav-link text-end" to="/cart">
-        <button className="btn btn-primary">回購物車</button>
+        <button className="btn btn-primary">{t("checkout.backToCart")}</button>
       </NavLink>
-      <div
-        style={{
-          maxHeight: "250px",
-          overflowY: "auto",
-        }}
-      >
+      <div style={{ maxHeight: "250px", overflowY: "auto" }}>
         <table className="table align-middle mb-0">
           <thead style={{ position: "sticky", top: 0, zIndex: 1 }}>
             <tr>
-              <th style={{ width: "100px" }}>圖片</th>
-              <th style={{ width: "200px" }}>品名</th>
-              <th style={{ width: "200px" }}>數量</th>
-              <th style={{ width: "120px" }}>小計</th>
+              <th style={{ width: "100px" }}>{t("common.image")}</th>
+              <th style={{ width: "200px" }}>{t("common.productName")}</th>
+              <th style={{ width: "200px" }}>{t("common.quantity")}</th>
+              <th style={{ width: "120px" }}>{t("common.subtotal")}</th>
             </tr>
           </thead>
           <tbody>
@@ -132,7 +134,7 @@ function CheckOut() {
             <td style={{ width: "500px" }}></td>
             <td></td>
             <td style={{ width: "200px" }} className="text-end fw-bold">
-              總計
+              {t("common.total")}
             </td>
             <td style={{ width: "200px" }} className="text-end fw-bold">
               NT$ {currency(cart.final_total)}
@@ -144,77 +146,73 @@ function CheckOut() {
         <form className="col-md-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-3">
             <label htmlFor="email" className="form-label">
-              Email
+              {t("checkout.email")}
             </label>
             <input
               id="email"
               name="email"
               type="email"
               className="form-control"
-              placeholder="請輸入 Email"
-              {...register("email", emailValidatoin)}
+              placeholder={t("checkout.emailPlaceholder")}
+              {...register("email", emailValidation(t))}
             />
             {errors.email && (
-              <p className="text-danger">{errors?.email.message}</p>
+              <p className="text-danger">{errors.email.message}</p>
             )}
           </div>
 
           <div className="mb-3">
             <label htmlFor="name" className="form-label">
-              收件人姓名
+              {t("checkout.name")}
             </label>
             <input
               id="name"
               name="name"
               type="text"
               className="form-control"
-              placeholder="請輸入姓名"
-              {...register("name", {
-                required: "請輸入 收件人姓名",
-              })}
+              placeholder={t("checkout.namePlaceholder")}
+              {...register("name", nameValidation(t))}
             />
             {errors.name && (
-              <p className="text-danger">{errors?.name.message}</p>
+              <p className="text-danger">{errors.name.message}</p>
             )}
           </div>
 
           <div className="mb-3">
             <label htmlFor="tel" className="form-label">
-              收件人電話
+              {t("checkout.phone")}
             </label>
             <input
               id="tel"
               name="tel"
               type="tel"
               className="form-control"
-              placeholder="請輸入電話"
-              {...register("tel", taiwanPhoneValidation)}
+              placeholder={t("checkout.phonePlaceholder")}
+              {...register("tel", taiwanPhoneValidation(t))}
             />
-            {errors.tel && <p className="text-danger">{errors?.tel.message}</p>}
+            {errors.tel && <p className="text-danger">{errors.tel.message}</p>}
           </div>
 
           <div className="mb-3">
             <label htmlFor="address" className="form-label">
-              收件人地址
+              {t("checkout.address")}
             </label>
             <input
               id="address"
               name="address"
               type="text"
               className="form-control"
-              placeholder="請輸入地址"
-              {...register("address", {
-                required: "請輸入 收件人地址",
-              })}
+              placeholder={t("checkout.addressPlaceholder")}
+              {...register("address", addressValidation(t))}
             />
             {errors.address && (
-              <p className="text-danger">{errors?.address.message}</p>
+              <p className="text-danger">{errors.address.message}</p>
             )}
           </div>
 
           <div className="mb-3">
             <label htmlFor="message" className="form-label">
-              留言
+              {t("checkout.message")}
             </label>
             <textarea
               id="message"
@@ -237,7 +235,7 @@ function CheckOut() {
                   wrapperStyle={{ display: "flex", justifyContent: "center" }}
                 />
               ) : (
-                "送出訂單"
+                t("checkout.submitOrder")
               )}
             </button>
           </div>

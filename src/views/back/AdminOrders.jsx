@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import * as bootstrap from "bootstrap";
+import { useTranslation } from "react-i18next";
 
 import axios from "axios";
 const API_BASE = import.meta.env.VITE_API_BASE;
@@ -12,6 +13,7 @@ import { currency } from "../../utils/currency";
 
 function AdminOrders() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [orders, setOrders] = useState([]);
   const [tempOrder, setTempOrder] = useState({});
@@ -35,7 +37,6 @@ function AdminOrders() {
   };
 
   useEffect(() => {
-    // 從 Cookie 取得 Token
     const token = document.cookie
       .split("; ")
       .find((row) => row.startsWith("hexW2Token="))
@@ -91,18 +92,18 @@ function AdminOrders() {
   return (
     <>
       <div className="container">
-        <h2 className="mt-4">訂單列表</h2>
+        <h2 className="mt-4">{t("admin.orders.title")}</h2>
         <div className="table-responsive">
           <table className="table mt-4 align-middle">
             <thead>
               <tr>
-                <th style={{ width: "120px" }}>訂單編號</th>
-                <th>訂購人 Email</th>
-                <th>訂購人姓名</th>
-                <th className="text-end">金額</th>
-                <th className="text-center">付款狀態</th>
-                <th>建立時間</th>
-                <th style={{ width: "140px" }}>操作</th>
+                <th style={{ width: "120px" }}>{t("admin.orders.orderId")}</th>
+                <th>{t("admin.orders.email")}</th>
+                <th>{t("admin.orders.name")}</th>
+                <th className="text-end">{t("admin.orders.amount")}</th>
+                <th className="text-center">{t("admin.orders.payStatus")}</th>
+                <th>{t("admin.orders.createdAt")}</th>
+                <th style={{ width: "140px" }}>{t("admin.orders.action")}</th>
               </tr>
             </thead>
             <tbody>
@@ -118,7 +119,9 @@ function AdminOrders() {
                     <span
                       className={`badge ${order.is_paid ? "bg-success" : "bg-danger"}`}
                     >
-                      {order.is_paid ? "已付款" : "未付款"}
+                      {order.is_paid
+                        ? t("admin.orders.paid")
+                        : t("admin.orders.unpaid")}
                     </span>
                   </td>
                   <td>{formatDate(order.create_at)}</td>
@@ -129,14 +132,14 @@ function AdminOrders() {
                         className="btn btn-outline-primary btn-sm"
                         onClick={() => openModal("view", order)}
                       >
-                        查看
+                        {t("admin.orders.view")}
                       </button>
                       <button
                         type="button"
                         className="btn btn-outline-danger btn-sm"
                         onClick={() => openModal("delete", order)}
                       >
-                        刪除
+                        {t("admin.orders.delete")}
                       </button>
                     </div>
                   </td>

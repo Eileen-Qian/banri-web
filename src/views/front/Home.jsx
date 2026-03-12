@@ -1,7 +1,8 @@
+import { useTranslation } from "react-i18next";
+
 function Home() {
-    return (
-        <p>首頁</p>
-    )
+  const { t } = useTranslation();
+  return <p>{t("home.title")}</p>;
 }
 
-export default Home
+export default Home;
