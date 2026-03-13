@@ -48,7 +48,81 @@
     "submitOrder": "送出訂單"
   },
   "home": {
-    "title": "首頁"
+    "hero": {
+      "eyebrow": "伴日 Banri",
+      "title": "讓植物\n成為生活的一部分",
+      "subtitle": "精選熱帶觀葉植物，為你的空間注入自然的生命力。",
+      "cta": "探索植物"
+    },
+    "features": {
+      "eyebrow": "我們的承諾",
+      "heading": "為什麼選擇 Banri",
+      "item1": {
+        "title": "嚴選植物",
+        "desc": "每株植物皆經過嚴格篩選，確保健康狀態與品質。"
+      },
+      "item2": {
+        "title": "專業照護指南",
+        "desc": "完整的植物照護說明，讓新手也能輕鬆上手。"
+      },
+      "item3": {
+        "title": "安心安全寄送",
+        "desc": "專業包裝設計，確保植物在運送過程中完好無損。"
+      }
+    },
+    "story": {
+      "eyebrow": "品牌故事",
+      "title": "源自對植物的熱愛",
+      "p1": "我們相信，每個生活空間都值得有一株充滿生命力的植物相伴。",
+      "p2": "從熱帶雨林到你的客廳，我們精心挑選每一株植物，確保它們能在你的環境中茁壯成長。",
+      "cta": "前往選購"
+    },
+    "featured": {
+      "eyebrow": "精選推薦",
+      "heading": "最受歡迎的植物",
+      "viewAll": "查看全部",
+      "viewDetail": "查看細節"
+    },
+    "cta": {
+      "title": "準備好讓自然走進你的家了嗎？",
+      "subtitle": "探索我們完整的植物系列，找到屬於你的那株。",
+      "btn": "立即選購"
+    },
+    "events": {
+      "eyebrow": "活動資訊",
+      "heading": "近期活動"
+    },
+    "subs": {
+      "eyebrow": "服務介紹",
+      "heading": "訂閱服務介紹",
+      "comingSoon": "即將上線",
+      "subscribeBtn": "訂閱",
+      "viewMoreBtn": "觀看更多",
+      "weekly": {
+        "title": "每週植栽",
+        "desc": "每週都想來點新鮮的綠意嗎？那麼您可以考慮伴日的每週植栽服務，每次最短訂閱時間為兩個月，即可享有每週不一樣的植栽享受。"
+      },
+      "rental": {
+        "title": "植栽租借",
+        "desc": "各式活動、展場、婚禮，想要來點跟別人不一樣的佈景，卻沒有東西可以佈置，或是擔心活動結束佈景該如何處理？那麼您可以考慮伴日的植栽租借服務，提供您一次性的植栽佈景，由伴日為您規劃。"
+      }
+    },
+    "contact": {
+      "eyebrow": "聯絡我們",
+      "heading": "聯絡我們",
+      "nameLabel": "姓名",
+      "emailLabel": "信箱",
+      "messageLabel": "訊息",
+      "namePlaceholder": "真實姓名",
+      "emailPlaceholder": "ex. Banri@example.com",
+      "messagePlaceholder": "請輸入訊息...",
+      "submit": "送出",
+      "or": "或",
+      "successTitle": "訊息已送出！",
+      "successDesc": "感謝您的來信，我們將於 1–2 個工作天內回覆您。",
+      "nameRequired": "請填寫姓名",
+      "messageRequired": "請填寫留言內容"
+    }
   },
   "notFound": {
     "subtitle": "找不到頁面",
@@ -102,7 +176,9 @@
       "title": "請先登入",
       "submit": "登入",
       "backToFront": "回前台",
-      "copyright": "六角學院"
+      "copyright": "六角學院",
+      "emailLabel": "Email",
+      "passwordLabel": "密碼"
     },
     "products": {
       "title": "產品列表",
@@ -190,5 +266,10 @@
     "unpaid": "未付款",
     "confirmDelete": "確認刪除",
     "save": "儲存變更"
+  },
+  "footer": {
+    "copy": "© {year} 伴日 Banri. All rights reserved.",
+    "shopLink": "選購植物",
+    "cartLink": "購物車"
   }
 }

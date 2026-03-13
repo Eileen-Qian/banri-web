@@ -48,7 +48,81 @@
     "submitOrder": "Place Order"
   },
   "home": {
-    "title": "Home"
+    "hero": {
+      "eyebrow": "Banri",
+      "title": "Let Plants\nBecome Part of Your Life",
+      "subtitle": "Curated tropical foliage plants to bring natural energy into your space.",
+      "cta": "Explore Plants"
+    },
+    "features": {
+      "eyebrow": "Our Promise",
+      "heading": "Why Choose Banri",
+      "item1": {
+        "title": "Curated Quality",
+        "desc": "Every plant is carefully selected to ensure health and quality."
+      },
+      "item2": {
+        "title": "Care Guidance",
+        "desc": "Complete plant care guides so even beginners can thrive."
+      },
+      "item3": {
+        "title": "Safe Delivery",
+        "desc": "Professional packaging ensures your plant arrives in perfect condition."
+      }
+    },
+    "story": {
+      "eyebrow": "Our Story",
+      "title": "Born from a Love of Plants",
+      "p1": "We believe every living space deserves a plant full of life.",
+      "p2": "From tropical rainforests to your living room, we handpick every plant to ensure it thrives in your environment.",
+      "cta": "Shop Now"
+    },
+    "featured": {
+      "eyebrow": "Featured",
+      "heading": "Most Popular Plants",
+      "viewAll": "View All",
+      "viewDetail": "View Details"
+    },
+    "cta": {
+      "title": "Ready to Bring Nature Home?",
+      "subtitle": "Explore our full collection and find your perfect plant.",
+      "btn": "Shop Now"
+    },
+    "events": {
+      "eyebrow": "Events",
+      "heading": "Upcoming Events"
+    },
+    "subs": {
+      "eyebrow": "Services",
+      "heading": "Subscription Services",
+      "comingSoon": "Coming Soon",
+      "subscribeBtn": "Subscribe",
+      "viewMoreBtn": "Learn More",
+      "weekly": {
+        "title": "Weekly Plants",
+        "desc": "Want a fresh touch of greenery every week? Consider Banri's weekly plant subscription — with a minimum two-month commitment, enjoy a different plant arrangement delivered to you every week."
+      },
+      "rental": {
+        "title": "Plant Rental",
+        "desc": "Planning an event, exhibition, or wedding and want a unique backdrop? Not sure how to handle the décor after the event? Banri's rental service provides fully planned, one-time staging tailored to your needs."
+      }
+    },
+    "contact": {
+      "eyebrow": "Contact Us",
+      "heading": "Contact Us",
+      "nameLabel": "Name",
+      "emailLabel": "Email",
+      "messageLabel": "Message",
+      "namePlaceholder": "Your full name",
+      "emailPlaceholder": "ex. Banri@example.com",
+      "messagePlaceholder": "Enter your message...",
+      "submit": "Send",
+      "or": "or",
+      "successTitle": "Message Sent!",
+      "successDesc": "Thank you for reaching out. We'll get back to you within 1–2 business days.",
+      "nameRequired": "Name is required",
+      "messageRequired": "Message is required"
+    }
   },
   "notFound": {
     "subtitle": "Page Not Found",
@@ -102,7 +176,9 @@
       "title": "Please Login",
       "submit": "Login",
       "backToFront": "Back to Frontend",
-      "copyright": "Hex School"
+      "copyright": "Hex School",
+      "emailLabel": "Email",
+      "passwordLabel": "Password"
     },
     "products": {
       "title": "Product List",
@@ -190,5 +266,10 @@
     "unpaid": "Unpaid",
     "confirmDelete": "Confirm Delete",
     "save": "Save Changes"
+  },
+  "footer": {
+    "copy": "© {year} 伴日 Banri. All rights reserved.",
+    "shopLink": "Shop",
+    "cartLink": "Cart"
   }
 }

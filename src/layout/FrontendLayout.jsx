@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, NavLink } from "react-router";
 import { useTranslation } from "react-i18next";
-
 import logo from "../assets/images/BanriLogo 1.svg";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 import DarkModeToggle from "../components/DarkModeToggle";
@@ -21,7 +20,7 @@ function FrontendLayout() {
   }, []);
 
   return (
-    <>
+    <div className="frontend-layout">
       <nav
         className={`navbar navbar-expand-lg bg-body-tertiary fixed-top${scrolled ? " navbar-scrolled" : ""}`}
       >
@@ -90,10 +89,25 @@ function FrontendLayout() {
           </div>
         </div>
       </nav>
-      <main style={{ paddingTop: "150px" }}>
+      <main className="frontend-layout__main" style={{ paddingTop: "150px" }}>
         <Outlet />
       </main>
-    </>
+
+      <footer className="site-footer">
+        <div className="container">
+          <div className="site-footer__inner">
+            <img src={logo} alt="Banri" className="site-footer__logo" />
+            <p className="site-footer__copy">
+              © {new Date().getFullYear()} 伴日 Banri. All rights reserved.
+            </p>
+            <nav className="site-footer__nav" aria-label="footer navigation">
+              <NavLink to="/products">{t("footer.shopLink")}</NavLink>
+              <NavLink to="/cart">{t("footer.cartLink")}</NavLink>
+            </nav>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
 

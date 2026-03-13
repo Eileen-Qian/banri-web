@@ -88,7 +88,7 @@ function Login() {
                   {...register("username", emailValidation(t))}
                   autoFocus
                 />
-                <label htmlFor="username">Email address</label>
+                <label htmlFor="username">{t("admin.login.emailLabel")}</label>
                 {errors.username && (
                   <p className="text-danger">{errors.username.message}</p>
                 )}
@@ -102,7 +102,7 @@ function Login() {
                   placeholder="Password"
                   {...register("password", passwordValidation(t))}
                 />
-                <label htmlFor="password">Password</label>
+                <label htmlFor="password">{t("admin.login.passwordLabel")}</label>
                 {errors.password && (
                   <p className="text-danger">{errors.password.message}</p>
                 )}
