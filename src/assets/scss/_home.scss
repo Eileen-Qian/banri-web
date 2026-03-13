@@ -1,0 +1,793 @@
+// ── Home page ─────────────────────────────────────────────────────────────────
+$font-display: 'Playfair Display', Georgia, serif;
+
+// Scroll-reveal utility
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  transition-delay: var(--reveal-delay, 0s);
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Hero ──────────────────────────────────────────────────────────────────────
+.home-page {
+  margin-top: -150px;
+}
+
+.home-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  background-image: url('../images/hero-bg.jpg');
+  background-size: cover;
+  background-position: center 40%;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      108deg,
+      rgba(8, 18, 8, 0.78) 0%,
+      rgba(8, 18, 8, 0.45) 55%,
+      rgba(8, 18, 8, 0.08) 100%
+    );
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    color: #fff;
+  }
+
+  &__eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: 1.25rem;
+    animation: fade-up 0.8s ease both;
+  }
+
+  &__title {
+    font-family: $font-display;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+    white-space: pre-line;
+    animation: fade-up 0.8s ease 0.15s both;
+  }
+
+  &__subtitle {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.82);
+    margin: 0 auto 2.5rem;
+    max-width: 460px;
+    text-align: center;
+    animation: fade-up 0.8s ease 0.3s both;
+  }
+
+  &__cta {
+    animation: fade-up 0.8s ease 0.45s both;
+    border-radius: 3rem;
+    padding: 0.8rem 2.25rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  &__scroll {
+    position: absolute;
+    bottom: 2.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 1.4rem;
+    z-index: 1;
+    animation: bounce-y 2.2s ease-in-out infinite;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+
+    &:hover {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce-y {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(9px); }
+}
+
+// ── Features ──────────────────────────────────────────────────────────────────
+.home-features {
+  padding: 6rem 0;
+
+  &__eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: $primary;
+    font-weight: 600;
+  }
+
+  &__heading {
+    font-family: $font-display;
+    font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+    font-weight: 700;
+    margin-bottom: 3rem;
+  }
+
+  &__card {
+    padding: 2.25rem 1.75rem;
+    border-radius: 1.25rem;
+    background: var(--bs-tertiary-bg);
+    height: 100%;
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.08);
+    }
+
+    i {
+      font-size: 2rem;
+      color: $primary;
+      display: block;
+      margin-bottom: 1.1rem;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: var(--bs-secondary-color);
+      line-height: 1.8;
+      margin: 0;
+    }
+  }
+}
+
+// ── Brand Story ───────────────────────────────────────────────────────────────
+.home-story {
+  padding: 6rem 0;
+  background: var(--bs-secondary-bg);
+  overflow: hidden;
+
+  &__img-wrap {
+    border-radius: 1.5rem;
+    overflow: hidden;
+    height: 500px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.7s ease;
+    }
+
+    &:hover img {
+      transform: scale(1.04);
+    }
+  }
+
+  &__eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: $primary;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  &__title {
+    font-family: $font-display;
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+  }
+
+  &__text {
+    color: var(--bs-secondary-color);
+    line-height: 1.9;
+    margin-bottom: 1rem;
+    font-size: 0.97rem;
+  }
+}
+
+// ── Featured Products ─────────────────────────────────────────────────────────
+.home-featured {
+  padding: 6rem 0;
+
+  &__eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: $primary;
+    font-weight: 600;
+  }
+
+  &__heading {
+    font-family: $font-display;
+    font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+    font-weight: 700;
+    margin-bottom: 3rem;
+  }
+
+  &__card {
+    border: none;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    background: var(--bs-body-bg);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-7px);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.12);
+    }
+
+    img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    &:hover img {
+      transform: scale(1.05);
+    }
+
+    &__body {
+      padding: 1.25rem 1.5rem 1.5rem;
+      text-align: left;
+    }
+
+    &__name {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.2rem;
+    }
+
+    &__latin {
+      font-size: 0.8rem;
+      color: var(--bs-secondary-color);
+      font-style: italic;
+      margin-bottom: 0.85rem;
+    }
+
+    &__price {
+      color: $primary;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+  }
+}
+
+
+// ── Subscription (Coming Soon) ─────────────────────────────────────────────────
+.home-subs {
+  padding: 6rem 0;
+  position: relative;
+  overflow: hidden;
+
+  background-size: cover;
+  background-position: center;
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(248, 252, 244, 0.52);
+    z-index: 0;
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: $primary;
+    font-weight: 600;
+  }
+
+  &__heading {
+    font-family: $font-display;
+    font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+    font-weight: 700;
+    margin-bottom: 3rem;
+    color: darken($primary, 12%);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    max-width: 940px;
+    margin: 0 auto;
+  }
+
+  &__item {
+    display: grid;
+    grid-template-columns: 55fr 45fr;
+    height: 360px;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    box-shadow: 0 8px 36px rgba(0, 0, 0, 0.16);
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+
+    &__img {
+      overflow: hidden;
+      height: 100%;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.55s ease;
+      }
+
+      &:hover img {
+        transform: scale(1.04);
+      }
+
+      @media (max-width: 768px) {
+        height: 220px;
+      }
+    }
+
+    // 毛玻璃 + 底色 panel
+    &__body {
+      padding: 2.5rem 2.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.9rem;
+      overflow: hidden;
+
+      background: rgba(178, 220, 140, 0.52);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      backdrop-filter: blur(24px) saturate(180%);
+      border-left: 1.5px solid rgba(255, 255, 255, 0.70);
+      // Subtle inner highlight at the top edge
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+
+      h3 {
+        font-family: $font-display;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: darken($primary, 15%);
+        margin: 0;
+      }
+
+      p {
+        font-size: 0.9rem;
+        color: darken($primary, 22%);
+        line-height: 1.88;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 5;
+        line-clamp: 5;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .btn-primary:disabled {
+        background-color: darken($primary, 5%);
+        border-color: darken($primary, 5%);
+        color: #fff;
+        cursor: not-allowed;
+        pointer-events: auto;
+        opacity: 0.85;
+      }
+
+      .btn-outline-primary:disabled {
+        color: darken($primary, 10%);
+        border-color: darken($primary, 8%);
+        background: rgba(255, 255, 255, 0.42);
+        cursor: not-allowed;
+        pointer-events: auto;
+        opacity: 0.85;
+      }
+    }
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fff;
+    background: darken($primary, 5%);
+    padding: 0.22rem 0.7rem;
+    border-radius: 2rem;
+    align-self: flex-start;
+  }
+}
+
+// ── Dark mode adjustments ─────────────────────────────────────────────────────
+[data-bs-theme="dark"] {
+  .home-features__card:hover {
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3);
+  }
+
+  .home-featured__card {
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  .home-events {
+    &__card {
+      box-shadow: 0 4px 28px rgba(0, 0, 0, 0.28);
+    }
+
+    &__organizer {
+      background: rgba(30, 40, 30, 0.82);
+      color: lighten($primary, 20%);
+    }
+  }
+
+  .home-subs {
+    &__overlay {
+      background: rgba(12, 24, 12, 0.80);
+    }
+
+    &__heading {
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    // Frosted glass in dark mode: deeper green tint
+    &__item__body {
+      background: rgba(55, 105, 30, 0.58);
+      border-left-color: rgba(255, 255, 255, 0.14);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+
+      h3 { color: rgba(255, 255, 255, 0.92); }
+      p  { color: rgba(255, 255, 255, 0.74); }
+
+      .btn-primary:disabled {
+        background-color: lighten($primary, 5%);
+        border-color: lighten($primary, 5%);
+      }
+
+      .btn-outline-primary:disabled {
+        color: rgba(255, 255, 255, 0.72);
+        border-color: rgba(255, 255, 255, 0.30);
+        background: rgba(255, 255, 255, 0.10);
+      }
+    }
+
+    &__badge {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      color: rgba(255, 255, 255, 0.88);
+    }
+  }
+}
+
+// ── Contact ───────────────────────────────────────────────────────────────────
+.home-contact {
+  // ── Map ─────────────────────────────────────────────────────────────────────
+  &__map-wrap {
+    min-height: 340px;
+
+    iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    @media (max-width: 991px) {
+      min-height: 240px;
+    }
+  }
+
+  // ── Right panel ─────────────────────────────────────────────────────────────
+  &__panel {
+    position: relative;
+    overflow: hidden;
+    padding: 2.25rem 3rem;
+    background: #f5f7f2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    @media (max-width: 1199px) { padding: 2rem 2.25rem; }
+    @media (max-width: 991px)  { padding: 2rem 1.5rem; }
+  }
+
+  // Leaf watermark — oversized BI icon via font character
+  &__watermark {
+    position: absolute;
+    font-size: 24rem;
+    color: rgba($primary, 0.07);
+    bottom: -5rem;
+    right: -4rem;
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+
+  &__heading {
+    font-family: $font-display;
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: darken($primary, 12%);
+    position: relative;
+    z-index: 1;
+  }
+
+  // ── Form ────────────────────────────────────────────────────────────────────
+  &__form {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__field {
+    margin-bottom: 1.1rem;
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 0.38rem;
+      color: var(--bs-body-color);
+
+      span { color: $primary; }
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 0.65rem 0.9rem;
+      border: 1.5px solid var(--bs-border-color);
+      border-radius: 0.5rem;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--bs-body-color);
+      font-size: 0.9rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      resize: none;
+      outline: none;
+
+      &::placeholder { color: var(--bs-secondary-color); }
+
+      &:focus {
+        border-color: $primary;
+        box-shadow: 0 0 0 3px rgba($primary, 0.14);
+      }
+
+      &.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.12);
+      }
+    }
+  }
+
+  &__err {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.78rem;
+    color: #dc3545;
+    padding-left: 0.2rem;
+  }
+
+  &__submit {
+    border-radius: 0.5rem;
+    padding: 0.72rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    margin-top: 0.15rem;
+  }
+
+  // ── Or divider ──────────────────────────────────────────────────────────────
+  &__divider {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    color: var(--bs-secondary-color);
+    font-size: 0.8rem;
+    margin: 1.25rem 0;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--bs-border-color);
+    }
+  }
+
+  // ── Social icons ────────────────────────────────────────────────────────────
+  &__socials {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  &__social-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid var(--bs-border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bs-body-color);
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+
+    &:hover {
+      color: $primary;
+      border-color: $primary;
+      background: rgba($primary, 0.07);
+    }
+  }
+
+  // ── Success state ────────────────────────────────────────────────────────────
+  &__success {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+    padding: 2rem 0;
+
+    i {
+      font-size: 3rem;
+      color: $primary;
+    }
+
+    h3 {
+      font-family: $font-display;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: darken($primary, 8%);
+      margin: 0;
+    }
+
+    p {
+      color: var(--bs-secondary-color);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      margin: 0;
+    }
+  }
+}
+
+// ── Site Footer ───────────────────────────────────────────────────────────────
+.site-footer {
+  background: darken($primary, 14%);
+  padding: 2rem 0;
+  color: rgba(255, 255, 255, 0.78);
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    @media (max-width: 576px) {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+
+  &__logo {
+    height: 32px;
+    width: auto;
+    // Invert the logo to show on dark bg
+    filter: brightness(0) invert(1);
+    opacity: 0.85;
+  }
+
+  &__copy {
+    font-size: 0.82rem;
+    letter-spacing: 0.02em;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  &__nav {
+    display: flex;
+    gap: 1.5rem;
+
+    a {
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.65);
+      text-decoration: none;
+      transition: color 0.2s ease;
+
+      &:hover { color: rgba(255, 255, 255, 0.95); }
+    }
+  }
+}
+
+// ── Dark mode additions ───────────────────────────────────────────────────────
+[data-bs-theme="dark"] {
+  .home-contact {
+    &__panel {
+      background: #151f11;
+    }
+
+    &__heading {
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    &__field {
+      label { color: rgba(255, 255, 255, 0.80); }
+
+      input,
+      textarea {
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.88);
+      }
+    }
+
+    &__social-btn {
+      color: rgba(255, 255, 255, 0.70);
+
+      &:hover {
+        color: lighten($primary, 15%);
+        border-color: lighten($primary, 10%);
+        background: rgba($primary, 0.14);
+      }
+    }
+
+    &__success {
+      h3 { color: rgba(255, 255, 255, 0.90); }
+    }
+  }
+
+  .site-footer {
+    background: #1a2e12;
+  }
+}
