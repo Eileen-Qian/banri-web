@@ -1,36 +1,39 @@
-import axios from "axios";
-const API_BASE = import.meta.env.VITE_API_BASE;
 import { useEffect, useState } from "react";
-import { RotatingLines } from "react-loader-spinner";
 import { Navigate } from "react-router";
+import { RotatingLines } from "react-loader-spinner";
+import { useTranslation } from "react-i18next";
+import { api } from "../utils/api";
+import useMessage from "../hooks/useMessage";
 
 function ProtectedRoute({ children }) {
-    const [isAuth, setIsAuth] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+  const [isAuth, setIsAuth] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const { showError } = useMessage();
+  const { t } = useTranslation();
+
   useEffect(() => {
-    // 從 Cookie 取得 Token
-    const token = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("hexW2Token="))
-      ?.split("=")[1];
-    if (token) {
-      axios.defaults.headers.common["Authorization"] = token;
-    }
-      const checkLogin = async () => {
-          setIsLoading(true);
+    const checkLogin = async () => {
+      setIsLoading(true);
       try {
-        await axios.post(`${API_BASE}/api/user/check`);
-        setIsAuth(true)
-      } catch (error) {
-        console.error(error.response.data.message);
+        await api.get("/api/v1/admin/verify");
+        setIsAuth(true);
+      } catch {
+        showError(t("api.sessionExpired"));
       } finally {
-          setIsLoading(false);
+        setIsLoading(false);
       }
     };
     checkLogin();
-  }, []);
-    if (isLoading) return <RotatingLines color={'var(--bs-primary)'} wrapperStyle={{ justifyContent: "center" }} />
-    if (!isAuth) return <Navigate to="/login" />
+  }, [showError, t]);
+
+  if (isLoading)
+    return (
+      <RotatingLines
+        color={"var(--bs-primary)"}
+        wrapperStyle={{ justifyContent: "center" }}
+      />
+    );
+  if (!isAuth) return <Navigate to="/login" />;
   return children;
 }
 
