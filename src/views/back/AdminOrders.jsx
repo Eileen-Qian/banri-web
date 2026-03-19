@@ -3,10 +3,7 @@ import { useNavigate } from "react-router";
 import * as bootstrap from "bootstrap";
 import { useTranslation } from "react-i18next";
 
-import axios from "axios";
-const API_BASE = import.meta.env.VITE_API_BASE;
-const API_PATH = import.meta.env.VITE_API_PATH;
-
+import { api } from "../../utils/api";
 import Pagination from "../../components/Pagination";
 import OrderModal from "../../components/OrderModal";
 import { currency } from "../../utils/currency";
@@ -18,20 +15,13 @@ function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [tempOrder, setTempOrder] = useState({});
   const [modalType, setModalType] = useState("");
-  const [pagination, setPagination] = useState({
-    current_page: 1,
-    total_pages: 1,
-    has_pre: false,
-    has_next: false,
-  });
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
 
   const orderModalRef = useRef(null);
 
   const fetchOrders = async (page = 1) => {
-    const res = await axios.get(
-      `${API_BASE}/api/${API_PATH}/admin/orders?page=${page}`,
-    );
-    setOrders(res.data.orders);
+    const res = await api.get(`/api/v1/admin/orders?page=${page}`);
+    setOrders(res.data.items);
     setPagination(res.data.pagination);
     return res.data;
   };
@@ -62,19 +52,14 @@ function AdminOrders() {
   const openModal = (type, order) => {
     setModalType(type);
     setTempOrder({ ...order });
-    setTimeout(() => {
-      orderModalRef.current.show();
-    }, 0);
+    setTimeout(() => orderModalRef.current.show(), 0);
   };
 
-  const closeModal = () => {
-    orderModalRef.current.hide();
-  };
+  const closeModal = () => orderModalRef.current.hide();
 
-  const formatDate = (timestamp) => {
-    if (!timestamp) return "-";
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleDateString("zh-TW", {
+  const formatDate = (isoStr) => {
+    if (!isoStr) return "-";
+    return new Date(isoStr).toLocaleDateString("zh-TW", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -89,34 +74,44 @@ function AdminOrders() {
           <table className="table mt-4 align-middle">
             <thead>
               <tr>
-                <th style={{ width: "120px" }}>{t("admin.orders.orderId")}</th>
+                <th style={{ width: "120px" }}>
+                  {t("admin.orders.orderId")}
+                </th>
                 <th>{t("admin.orders.email")}</th>
                 <th>{t("admin.orders.name")}</th>
                 <th className="text-end">{t("admin.orders.amount")}</th>
-                <th className="text-center">{t("admin.orders.payStatus")}</th>
+                <th className="text-center">
+                  {t("admin.orders.payStatus")}
+                </th>
                 <th>{t("admin.orders.createdAt")}</th>
-                <th style={{ width: "140px" }}>{t("admin.orders.action")}</th>
+                <th style={{ width: "140px" }}>
+                  {t("admin.orders.action")}
+                </th>
               </tr>
             </thead>
             <tbody>
               {orders.map((order) => (
                 <tr key={order.id}>
                   <td>
-                    <span title={order.id}>{order.id.substring(0, 8)}...</span>
+                    <span title={order.id}>
+                      {order.id.substring(0, 8)}...
+                    </span>
                   </td>
-                  <td>{order.user?.email}</td>
-                  <td>{order.user?.name}</td>
-                  <td className="text-end">NT$ {currency(order.total)}</td>
+                  <td>{order.email}</td>
+                  <td>{order.name}</td>
+                  <td className="text-end">
+                    NT$ {currency(Number(order.total))}
+                  </td>
                   <td className="text-center">
                     <span
-                      className={`badge ${order.is_paid ? "bg-success" : "bg-danger"}`}
+                      className={`badge ${order.isPaid ? "bg-success" : "bg-danger"}`}
                     >
-                      {order.is_paid
+                      {order.isPaid
                         ? t("admin.orders.paid")
                         : t("admin.orders.unpaid")}
                     </span>
                   </td>
-                  <td>{formatDate(order.create_at)}</td>
+                  <td>{formatDate(order.createAt)}</td>
                   <td>
                     <div className="btn-group" role="group">
                       <button

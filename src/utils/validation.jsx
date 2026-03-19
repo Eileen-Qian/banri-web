@@ -28,6 +28,14 @@ export const nameValidation = (t) => ({
   required: t("validation.nameRequired"),
 });
 
+export const cityValidation = (t) => ({
+  required: t("validation.cityRequired"),
+});
+
+export const districtValidation = (t) => ({
+  required: t("validation.districtRequired"),
+});
+
 export const addressValidation = (t) => ({
   required: t("validation.addressRequired"),
 });

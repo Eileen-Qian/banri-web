@@ -1,46 +1,56 @@
+/**
+ * Pagination component.
+ *
+ * Accepts new API format: { page, totalPages }
+ */
 function Pagination({ pagination, onChangePage }) {
-  const handleClick = (e, page) => {
-    e.preventDefault();
-    if (page < 1 || page > pagination.total_pages) return;
-    onChangePage(page);
-  };
-  return (
-    <>
-      <nav aria-label="Page navigation example">
-        <ul className="pagination justify-content-center">
-          <li className={`page-item ${!pagination.has_pre && "disabled"}`}>
-            <a
-              className="page-link"
-              href="#"
-              onClick={(e) => handleClick(e, pagination.current_page - 1)}
-            >
-              <span aria-hidden="true">&laquo;</span>
-            </a>
-          </li>
-          {Array.from({ length: pagination.total_pages }, (_, index) => (
-            <li
-              className={`page-item ${pagination.current_page === index + 1 && "active"}`}
-              key={index}
-              onClick={(e) => handleClick(e, index + 1)}
-            >
-              <a className="page-link" href="#">
-                {index + 1}
-              </a>
-            </li>
-          ))}
+  const { page, totalPages } = pagination;
 
-          <li className={`page-item ${!pagination.has_next && "disabled"}`}>
+  const handleClick = (e, p) => {
+    e.preventDefault();
+    if (p < 1 || p > totalPages) return;
+    onChangePage(p);
+  };
+
+  if (totalPages <= 1) return null;
+
+  return (
+    <nav aria-label="Page navigation">
+      <ul className="pagination justify-content-center">
+        <li className={`page-item ${page <= 1 ? "disabled" : ""}`}>
+          <a
+            className="page-link"
+            href="#"
+            onClick={(e) => handleClick(e, page - 1)}
+          >
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <li
+            className={`page-item ${page === i + 1 ? "active" : ""}`}
+            key={i}
+          >
             <a
               className="page-link"
               href="#"
-              onClick={(e) => handleClick(e, pagination.current_page + 1)}
+              onClick={(e) => handleClick(e, i + 1)}
             >
-              <span aria-hidden="true">&raquo;</span>
+              {i + 1}
             </a>
           </li>
-        </ul>
-      </nav>
-    </>
+        ))}
+        <li className={`page-item ${page >= totalPages ? "disabled" : ""}`}>
+          <a
+            className="page-link"
+            href="#"
+            onClick={(e) => handleClick(e, page + 1)}
+          >
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
   );
 }
 

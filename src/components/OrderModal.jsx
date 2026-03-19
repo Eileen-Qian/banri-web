@@ -1,28 +1,24 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import axios from "axios";
-const API_BASE = import.meta.env.VITE_API_BASE;
-const API_PATH = import.meta.env.VITE_API_PATH;
-
+import { api, localizedName } from "../utils/api";
 import { currency } from "../utils/currency";
 import useMessage from "../hooks/useMessage";
 
 function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
   const { showSuccess, showError } = useMessage();
   const { t } = useTranslation();
-  const [isPaid, setIsPaid] = useState(!!tempOrder.is_paid);
-  // render-time adjustment: sync isPaid when a different order is opened
+
+  const [isPaid, setIsPaid] = useState(!!tempOrder.isPaid);
   const [prevOrderId, setPrevOrderId] = useState(tempOrder.id);
   if (prevOrderId !== tempOrder.id) {
     setPrevOrderId(tempOrder.id);
-    setIsPaid(!!tempOrder.is_paid);
+    setIsPaid(!!tempOrder.isPaid);
   }
 
-  const formatDate = (timestamp) => {
-    if (!timestamp) return "-";
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleDateString("zh-TW", {
+  const formatDate = (isoStr) => {
+    if (!isoStr) return "-";
+    return new Date(isoStr).toLocaleDateString("zh-TW", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -31,32 +27,27 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
 
   const updateOrder = async () => {
     try {
-      await axios.put(
-        `${API_BASE}/api/${API_PATH}/admin/order/${tempOrder.id}`,
-        { data: { ...tempOrder, is_paid: isPaid } },
-      );
+      await api.put(`/api/v1/admin/orders/${tempOrder.id}`, { isPaid });
       fetchOrders();
       closeModal();
       showSuccess(t("api.updateOrderSuccess"));
     } catch (error) {
-      showError(error.response.data.message);
+      showError(error.response?.data?.error || error.message);
     }
   };
 
   const deleteOrder = async () => {
     try {
-      await axios.delete(
-        `${API_BASE}/api/${API_PATH}/admin/order/${tempOrder.id}`,
-      );
+      await api.delete(`/api/v1/admin/orders/${tempOrder.id}`);
       fetchOrders();
       closeModal();
       showSuccess(t("api.deleteOrderSuccess"));
     } catch (error) {
-      showError(error.response.data.message);
+      showError(error.response?.data?.error || error.message);
     }
   };
 
-  const products = tempOrder.products ? Object.values(tempOrder.products) : [];
+  const orderItems = tempOrder.items || [];
 
   return (
     <div
@@ -80,8 +71,7 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
               type="button"
               className="btn-close btn-close-white"
               data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+            />
           </div>
           <div className="modal-body">
             {modalType === "delete" ? (
@@ -92,6 +82,7 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
               </p>
             ) : (
               <>
+                {/* Order info */}
                 <div className="mb-3">
                   <h6>{t("orderModal.orderInfo")}</h6>
                   <table className="table table-borderless table-sm">
@@ -112,13 +103,15 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                           {t("orderModal.createdAt")}
                         </td>
                         <td className="text-start">
-                          {formatDate(tempOrder.create_at)}
+                          {formatDate(tempOrder.createAt)}
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
                 <hr />
+
+                {/* Customer info */}
                 <div className="mb-3">
                   <h6>{t("orderModal.customerInfo")}</h6>
                   <table className="table table-borderless table-sm">
@@ -127,27 +120,57 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                         <td className="text-muted" style={{ width: "120px" }}>
                           Email
                         </td>
-                        <td className="text-start">{tempOrder.user?.email}</td>
+                        <td className="text-start">{tempOrder.email}</td>
                       </tr>
                       <tr>
                         <td className="text-muted">{t("orderModal.name")}</td>
-                        <td className="text-start">{tempOrder.user?.name}</td>
-                      </tr>
-                      <tr>
-                        <td className="text-muted">{t("orderModal.phone")}</td>
-                        <td className="text-start">{tempOrder.user?.tel}</td>
+                        <td className="text-start">{tempOrder.name}</td>
                       </tr>
                       <tr>
                         <td className="text-muted">
-                          {t("orderModal.address")}
+                          {t("orderModal.phone")}
                         </td>
-                        <td className="text-start">
-                          {tempOrder.user?.address}
-                        </td>
+                        <td className="text-start">{tempOrder.phone}</td>
                       </tr>
+                      {tempOrder.deliveryMethodId && (
+                        <tr>
+                          <td className="text-muted">
+                            {t("cart.deliveryMethod")}
+                          </td>
+                          <td className="text-start">
+                            {tempOrder.deliveryMethodId
+                              .replace("delivery-", "")
+                              .replace(/_/g, " ")}
+                          </td>
+                        </tr>
+                      )}
+                      {tempOrder.storeBrand ? (
+                        <tr>
+                          <td className="text-muted">
+                            {t("orderModal.store")}
+                          </td>
+                          <td className="text-start">
+                            {tempOrder.storeBrand} — {tempOrder.storeName} ({tempOrder.storeNumber})
+                          </td>
+                        </tr>
+                      ) : (
+                        <tr>
+                          <td className="text-muted">
+                            {t("orderModal.address")}
+                          </td>
+                          <td className="text-start">
+                            {tempOrder.city && tempOrder.district
+                              ? `${tempOrder.city}${tempOrder.district} ${tempOrder.address}`
+                              : tempOrder.city
+                                ? `${tempOrder.city} ${tempOrder.address}`
+                                : tempOrder.address || "—"}
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
+
                 {tempOrder.message && (
                   <>
                     <hr />
@@ -157,43 +180,76 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                     </div>
                   </>
                 )}
+
                 <hr />
+
+                {/* Products */}
                 <div className="mb-3">
                   <h6>{t("orderModal.products")}</h6>
                   <table className="table align-middle">
                     <thead>
                       <tr>
                         <th>{t("orderModal.productName")}</th>
-                        <th style={{ width: "80px" }}>{t("orderModal.qty")}</th>
+                        <th>{t("common.size")}</th>
+                        <th style={{ width: "80px" }}>
+                          {t("orderModal.qty")}
+                        </th>
                         <th style={{ width: "120px" }} className="text-end">
                           {t("orderModal.subtotal")}
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {products.map((item) => (
+                      {orderItems.map((item) => (
                         <tr key={item.id}>
-                          <td>{item.product?.title}</td>
+                          <td>{localizedName(item.productName)}</td>
+                          <td>{localizedName(item.sizeName)}</td>
                           <td>{item.qty}</td>
                           <td className="text-end">
-                            NT$ {currency(item.total)}
+                            NT$ {currency(Number(item.price) * item.qty)}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                     <tfoot>
                       <tr>
-                        <td colSpan="2" className="text-end fw-bold">
+                        <td colSpan="3" className="text-end">
+                          {t("cart.subtotal")}
+                        </td>
+                        <td className="text-end">
+                          NT$ {currency(Number(tempOrder.total))}
+                        </td>
+                      </tr>
+                      {Number(tempOrder.shippingFee) > 0 && (
+                        <tr>
+                          <td colSpan="3" className="text-end">
+                            {t("cart.shippingFee")}
+                          </td>
+                          <td className="text-end">
+                            NT${" "}
+                            {currency(Number(tempOrder.shippingFee))}
+                          </td>
+                        </tr>
+                      )}
+                      <tr>
+                        <td colSpan="3" className="text-end fw-bold">
                           {t("orderModal.total")}
                         </td>
                         <td className="text-end fw-bold">
-                          NT$ {currency(tempOrder.total)}
+                          NT${" "}
+                          {currency(
+                            Number(tempOrder.total) +
+                              Number(tempOrder.shippingFee || 0),
+                          )}
                         </td>
                       </tr>
                     </tfoot>
                   </table>
                 </div>
+
                 <hr />
+
+                {/* Pay status toggle */}
                 <div className="mb-3">
                   <h6>{t("orderModal.payStatus")}</h6>
                   <div className="form-check form-switch">
@@ -208,13 +264,16 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                       className={`form-check-label ${isPaid ? "text-success" : "text-danger"}`}
                       htmlFor="isPaid"
                     >
-                      {isPaid ? t("orderModal.paid") : t("orderModal.unpaid")}
+                      {isPaid
+                        ? t("orderModal.paid")
+                        : t("orderModal.unpaid")}
                     </label>
                   </div>
                 </div>
               </>
             )}
           </div>
+
           <div className="modal-footer">
             {modalType === "delete" ? (
               <>

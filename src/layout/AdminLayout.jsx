@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 
-import axios from "axios";
-const API_BASE = import.meta.env.VITE_API_BASE;
-
+import { setAuthToken } from "../utils/api";
 import logo from "../assets/images/BanriLogo 1.svg";
 import useMessage from "../hooks/useMessage";
 import LanguageSwitcher from "../components/LanguageSwitcher";
@@ -14,6 +12,8 @@ function AdminLayout() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { showSuccess } = useMessage();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -23,19 +23,11 @@ function AdminLayout() {
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
   const closeMenu = () => setIsOpen(false);
-  const navigate = useNavigate();
-  const { showSuccess, showError } = useMessage();
 
-  const logout = async () => {
-    try {
-      await axios.post(`${API_BASE}/logout`);
-      document.cookie =
-        "hexW2Token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/hex-2025-react-week7;";
-      navigate("/login");
-      showSuccess(t("api.logoutSuccess"));
-    } catch (error) {
-      showError(error.response.data.message);
-    }
+  const logout = () => {
+    setAuthToken(null);
+    navigate("/login");
+    showSuccess(t("api.logoutSuccess"));
   };
 
   return (
@@ -88,6 +80,15 @@ function AdminLayout() {
                   {t("admin.nav.orders")}
                 </NavLink>
               </li>
+              <li className="nav-item">
+                <NavLink
+                  className="nav-link"
+                  to="/admin/shipping"
+                  onClick={closeMenu}
+                >
+                  {t("admin.nav.shipping")}
+                </NavLink>
+              </li>
             </ul>
 
             {/* 桌面版：在 collapse 內右側，手機隱藏 */}
@@ -106,7 +107,7 @@ function AdminLayout() {
           >
             {t("admin.nav.backToFront")}
           </button>
-          <button className="btn btn-outline-primary" onClick={() => logout()}>
+          <button className="btn btn-outline-primary" onClick={logout}>
             {t("admin.nav.logout")}
           </button>
         </div>

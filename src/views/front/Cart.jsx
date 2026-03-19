@@ -1,213 +1,203 @@
-import axios from "axios";
-const API_BASE = import.meta.env.VITE_API_BASE;
-const API_PATH = import.meta.env.VITE_API_PATH;
-
 import { useEffect, useState } from "react";
-import { Oval } from "react-loader-spinner";
 import { NavLink } from "react-router";
+import { Oval } from "react-loader-spinner";
 import { useTranslation } from "react-i18next";
+
+import { api, localizedName, primaryImageUrl, cartHeaders } from "../../utils/api";
 import { currency } from "../../utils/currency";
 import useMessage from "../../hooks/useMessage.jsx";
 
-const fetchCart = async () => {
-  const res = await axios.get(`${API_BASE}/api/${API_PATH}/cart`);
-  return res.data.data;
-};
-
 function Cart() {
-  const [cart, setCart] = useState(null);
-  const [loadingCartId, setLoadingCartId] = useState(null);
-  const [isClearingCart, setIsClearingCart] = useState(false);
   const { t } = useTranslation();
   const { showSuccess, showError } = useMessage();
+  const [items, setItems] = useState(null);
+  const [total, setTotal] = useState("0");
+  const [loadingId, setLoadingId] = useState(null);
+  const [isClearing, setIsClearing] = useState(false);
 
-  useEffect(() => {
-    getCart();
-  }, [showError]);
-
-  const getCart = async () => {
+  const fetchCart = async () => {
     try {
-      const data = await fetchCart();
-      setCart(data);
+      const res = await api.get("/api/v1/cart", { headers: cartHeaders() });
+      setItems(res.data.items);
+      setTotal(res.data.total);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const updateCartItem = async (cartId, productId, qty) => {
-    setLoadingCartId(cartId);
+  useEffect(() => { fetchCart(); }, []);
+
+  const applyCartResponse = (data) => {
+    setItems(data.items);
+    setTotal(data.total);
+  };
+
+  const updateQty = async (itemId, qty) => {
+    setLoadingId(itemId);
     try {
-      await axios.put(`${API_BASE}/api/${API_PATH}/cart/${cartId}`, {
-        data: { product_id: productId, qty },
-      });
-      getCart();
+      const res = await api.put(`/api/v1/cart/items/${itemId}`, { qty }, { headers: cartHeaders() });
+      console.log(res);
+      
+      applyCartResponse(res.data);
       showSuccess(t("api.updateCartSuccess"));
     } catch (error) {
-      showError(error.response.data.message);
+      showError(error.response?.data?.error || error.message);
     } finally {
-      setLoadingCartId(null);
+      setLoadingId(null);
+    }
+  };
+
+  const removeItem = async (itemId) => {
+    setLoadingId(itemId);
+    try {
+      const res = await api.delete(`/api/v1/cart/items/${itemId}`, { headers: cartHeaders() });
+      applyCartResponse(res.data);
+      showSuccess(t("api.removeCartSuccess"));
+    } catch (error) {
+      showError(error.response?.data?.error || error.message);
+    } finally {
+      setLoadingId(null);
     }
   };
 
   const clearCart = async () => {
-    setIsClearingCart(true);
+    setIsClearing(true);
     try {
-      await axios.delete(`${API_BASE}/api/${API_PATH}/carts`);
-      getCart();
+      const res = await api.delete("/api/v1/cart", { headers: cartHeaders() });
+      applyCartResponse(res.data);
       showSuccess(t("api.clearCartSuccess"));
     } catch (error) {
-      showError(error.response.data.message);
+      showError(error.response?.data?.error || error.message);
     } finally {
-      setIsClearingCart(false);
+      setIsClearing(false);
     }
   };
 
-  const removeCartItem = async (cartId) => {
-    setLoadingCartId(cartId);
-    try {
-      await axios.delete(`${API_BASE}/api/${API_PATH}/cart/${cartId}`);
-      getCart();
-      showSuccess(t("api.removeCartSuccess"));
-    } catch (error) {
-      showError(error.response.data.message);
-    } finally {
-      setLoadingCartId(null);
-    }
-  };
-
-  if (!cart)
+  if (items === null)
     return <p className="text-center fs-2 mt-5">{t("common.loading")}</p>;
 
-  if (cart.carts.length === 0) {
+  if (items.length === 0) {
     return (
-      <>
-        <p className="text-center fs-4 mt-5">{t("common.cartEmpty")}</p>
-        <NavLink className="nav-link" to="/products">
-          <button className="btn btn-primary">{t("common.goShopping")}</button>
+      <div className="container mt-5 text-center">
+        <p className="fs-4">{t("common.cartEmpty")}</p>
+        <NavLink className="btn btn-primary" to="/products">
+          {t("common.goShopping")}
         </NavLink>
-      </>
+      </div>
     );
   }
+
+  const subtotal = Number(total);
 
   return (
     <div className="container mt-5">
       <h2 className="mb-4">{t("cart.title")}</h2>
-      <div className="d-flex justify-content-between align-items-center">
+
+      <div className="d-flex justify-content-between align-items-center mb-3">
         <button
           className="btn btn-outline-danger"
           onClick={clearCart}
-          disabled={isClearingCart}
+          disabled={isClearing}
         >
           <i className="bi bi-trash me-1" />
           {t("cart.clearCart")}
         </button>
-        <NavLink className="nav-link" to="/checkout">
-          <button className="btn btn-primary">{t("cart.goCheckout")}</button>
+        <NavLink className="btn btn-primary" to="/checkout">
+          {t("cart.goCheckout")}
         </NavLink>
       </div>
-      <table className="table align-middle">
-        <thead>
-          <tr>
-            <th style={{ width: "100px" }}>{t("common.image")}</th>
-            <th>{t("common.productName")}</th>
-            <th style={{ width: "120px" }}>{t("common.unitPrice")}</th>
-            <th style={{ width: "200px" }}>{t("common.quantity")}</th>
-            <th style={{ width: "120px" }}>{t("common.subtotal")}</th>
-            <th style={{ width: "80px" }}>{t("cart.action")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cart.carts.map((item) => (
-            <tr key={item.id}>
-              <td>
-                <img
-                  src={item.product.imageUrl}
-                  alt={item.product.title}
-                  style={{ width: "80px", height: "80px", objectFit: "cover" }}
-                />
-              </td>
-              <td>{item.product.title}</td>
-              <td>NT$ {currency(item.product.price)}</td>
-              <td>
-                <div className="input-group" style={{ width: "150px" }}>
-                  <button
-                    className="btn btn-outline-primary btn-sm"
-                    type="button"
-                    onClick={() =>
-                      updateCartItem(item.id, item.product.id, item.qty - 1)
-                    }
-                    disabled={item.qty <= 1 || loadingCartId === item.id}
-                  >
-                    {loadingCartId === item.id ? (
-                      <Oval
-                        visible={true}
-                        height="20"
-                        width="20"
-                        ariaLabel="oval-loading"
-                      />
-                    ) : (
-                      "-"
-                    )}
-                  </button>
-                  <input
-                    type="number"
-                    className="form-control text-center"
-                    value={item.qty}
-                    readOnly
-                  />
-                  <button
-                    className="btn btn-outline-primary btn-sm"
-                    type="button"
-                    onClick={() =>
-                      updateCartItem(item.id, item.product.id, item.qty + 1)
-                    }
-                    disabled={item.qty >= 10 || loadingCartId === item.id}
-                  >
-                    {loadingCartId === item.id ? (
-                      <Oval
-                        visible={true}
-                        height="20"
-                        width="20"
-                        ariaLabel="oval-loading"
-                      />
-                    ) : (
-                      "+"
-                    )}
-                  </button>
-                </div>
-              </td>
-              <td>NT$ {currency(item.total)}</td>
-              <td>
-                <button
-                  className="btn btn-outline-danger btn-sm"
-                  onClick={() => removeCartItem(item.id)}
-                >
-                  {loadingCartId === item.id ? (
-                    <Oval
-                      visible={true}
-                      height="20"
-                      width="20"
-                      ariaLabel="oval-loading"
-                    />
-                  ) : (
-                    t("cart.delete")
-                  )}
-                </button>
-              </td>
+
+      {/* Items table */}
+      <div className="table-responsive">
+        <table className="table align-middle">
+          <thead>
+            <tr>
+              <th style={{ width: "100px" }}>{t("common.image")}</th>
+              <th>{t("common.productName")}</th>
+              <th style={{ width: "120px" }}>{t("common.unitPrice")}</th>
+              <th style={{ width: "200px" }}>{t("common.quantity")}</th>
+              <th style={{ width: "120px" }}>{t("common.subtotal")}</th>
+              <th style={{ width: "80px" }}>{t("cart.action")}</th>
             </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colSpan="4" className="text-end fw-bold">
-              {t("common.total")}
-            </td>
-            <td colSpan="2" className="fw-bold">
-              NT$ {currency(cart.final_total)}
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+          </thead>
+          <tbody>
+            {items.map((item) => {
+              const v = item.variant;
+              const imgUrl = primaryImageUrl(v.product?.images || []);
+              const itemTotal = Number(v.price) * item.qty;
+              return (
+                <tr key={item.id}>
+                  <td>
+                    {imgUrl && (
+                      <img
+                        src={imgUrl}
+                        alt={localizedName(v.product?.name)}
+                        style={{ width: "80px", height: "80px", objectFit: "cover" }}
+                      />
+                    )}
+                  </td>
+                  <td>
+                    <div>{localizedName(v.product?.name)}</div>
+                    <small className="text-muted">{localizedName(v.size?.name)}</small>
+                  </td>
+                  <td>NT$ {currency(Number(v.price))}</td>
+                  <td>
+                    <div className="input-group" style={{ width: "150px" }}>
+                      <button
+                        className="btn btn-outline-primary btn-sm"
+                        type="button"
+                        onClick={() => updateQty(item.id, item.qty - 1)}
+                        disabled={item.qty <= 1 || loadingId === item.id}
+                      >
+                        {loadingId === item.id ? <Oval visible height="20" width="20" /> : "-"}
+                      </button>
+                      <input type="number" className="form-control text-center" value={item.qty} readOnly />
+                      <button
+                        className="btn btn-outline-primary btn-sm"
+                        type="button"
+                        onClick={() => updateQty(item.id, item.qty + 1)}
+                        disabled={item.qty >= 10 || loadingId === item.id}
+                      >
+                        {loadingId === item.id ? <Oval visible height="20" width="20" /> : "+"}
+                      </button>
+                    </div>
+                  </td>
+                  <td>NT$ {currency(itemTotal)}</td>
+                  <td>
+                    <button
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => removeItem(item.id)}
+                      disabled={loadingId === item.id}
+                    >
+                      {loadingId === item.id ? <Oval visible height="20" width="20" /> : t("cart.delete")}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Summary */}
+      <div className="row mt-4 justify-content-end">
+        <div className="col-md-5 col-lg-4">
+          <div className="card border-0 shadow-sm">
+            <div className="card-body">
+              <div className="d-flex justify-content-between fw-bold fs-5 mb-3">
+                <span>{t("cart.subtotal")}</span>
+                <span>NT$ {currency(subtotal)}</span>
+              </div>
+              <small className="text-muted d-block mb-3">
+                {t("cart.shippingCalcHint")}
+              </small>
+              <NavLink className="btn btn-primary w-100" to="/checkout">
+                {t("cart.goCheckout")}
+              </NavLink>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -9,8 +9,11 @@ import AdminNotFound from "../views/back/AdminNotFound";
 import Login from "../views/back/Login";
 import AdminProducts from "../views/back/AdminProducts";
 import CheckOut from "../views/front/CheckOut";
+import OrderSuccess from "../views/front/OrderSuccess";
+import OrderStatus from "../views/front/OrderStatus";
 import AdminPayout from "../layout/AdminLayout";
 import AdminOrders from "../views/back/AdminOrders";
+import AdminShipping from "../views/back/AdminShipping";
 import ProtectedRoute from "../components/ProtectedRoute";
 
 export const router = createHashRouter([
@@ -39,6 +42,14 @@ export const router = createHashRouter([
                 element: <CheckOut />
             },
             {
+                path: 'order-success/:id',
+                element: <OrderSuccess />
+            },
+            {
+                path: 'order-status',
+                element: <OrderStatus />
+            },
+            {
                 path: '*',
                 element: <FrontNotFound />
             },
@@ -60,6 +71,10 @@ export const router = createHashRouter([
             {
                 path: 'orders',
                 element: <AdminOrders />
+            },
+            {
+                path: 'shipping',
+                element: <AdminShipping />
             },
             {
                 path: '*',
