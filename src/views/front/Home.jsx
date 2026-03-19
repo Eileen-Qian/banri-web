@@ -1,11 +1,8 @@
-import axios from "axios";
-const API_BASE = import.meta.env.VITE_API_BASE;
-const API_PATH = import.meta.env.VITE_API_PATH;
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { NavLink, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
+import { api, localizedName, primaryImageUrl, priceRange } from "../../utils/api";
 import { currency } from "../../utils/currency";
 import { emailValidation } from "../../utils/validation";
 
@@ -210,9 +207,9 @@ function FeaturedSection() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE}/api/${API_PATH}/products/all`)
-      .then((res) => setProducts((res.data.products ?? []).slice(0, 4)))
+    api
+      .get("/api/v1/products?page=1")
+      .then((res) => setProducts((res.data.items ?? []).slice(0, 4)))
       .catch(() => {});
   }, []);
 
@@ -231,29 +228,37 @@ function FeaturedSection() {
           </h2>
         </div>
         <div className="row g-4 justify-content-center">
-          {products.map((p, i) => (
-            <div className="col-sm-6 col-lg-3" key={p.id}>
-              <div
-                className={`home-featured__card reveal ${visible ? "is-visible" : ""}`}
-                style={{ "--reveal-delay": `${i * 0.12}s` }}
-                onClick={() => navigate(`/product/${p.id}`)}
-              >
-                <img src={p.imageUrl} alt={p.title} />
-                <div className="home-featured__card__body">
-                  <p className="home-featured__card__name">{p.title}</p>
-                  <p className="home-featured__card__latin">{p.category}</p>
-                  <div className="d-flex align-items-center justify-content-between">
-                    <span className="home-featured__card__price">
-                      NT$ {currency(p.price)}
-                    </span>
-                    <span className="btn btn-outline-primary btn-sm">
-                      {t("home.featured.viewDetail")}
-                    </span>
+          {products.map((p, i) => {
+            const imgUrl = primaryImageUrl(p.images);
+            const range = priceRange(p.variants);
+            return (
+              <div className="col-sm-6 col-lg-3" key={p.id}>
+                <div
+                  className={`home-featured__card reveal ${visible ? "is-visible" : ""}`}
+                  style={{ "--reveal-delay": `${i * 0.12}s` }}
+                  onClick={() => navigate(`/product/${p.id}`)}
+                >
+                  {imgUrl && <img src={imgUrl} alt={localizedName(p.name)} />}
+                  <div className="home-featured__card__body">
+                    <p className="home-featured__card__name">{localizedName(p.name)}</p>
+                    <p className="home-featured__card__latin">
+                      {p.scientificName || localizedName(p.category?.name)}
+                    </p>
+                    <div className="d-flex align-items-center justify-content-between">
+                      <span className="home-featured__card__price">
+                        {range.min === range.max
+                          ? `NT$ ${currency(range.min)}`
+                          : `NT$ ${currency(range.min)} ~`}
+                      </span>
+                      <span className="btn btn-outline-primary btn-sm">
+                        {t("home.featured.viewDetail")}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <div className="text-center mt-5">
           <NavLink to="/products" className="btn btn-outline-primary px-4">
@@ -300,13 +305,10 @@ function ContactSection() {
     defaultValues: { name: "", email: "", message: "" },
   });
 
-  const errorsRef = useRef(errors);
-  errorsRef.current = errors;
   useEffect(() => {
-    const fields = Object.keys(errorsRef.current);
+    const fields = Object.keys(errors);
     if (fields.length > 0) trigger(fields);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [i18n.language]);
+  }, [i18n.language, trigger, errors]);
 
   const mapSrc = `${MAP_SRC_BASE}&hl=${i18n.language}`;
 

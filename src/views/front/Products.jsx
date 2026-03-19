@@ -1,145 +1,160 @@
-import axios from "axios";
-const API_BASE = import.meta.env.VITE_API_BASE;
-const API_PATH = import.meta.env.VITE_API_PATH;
-
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 
+import {
+  api,
+  localizedName,
+  primaryImageUrl,
+  priceRange,
+  cartHeaders,
+} from "../../utils/api";
 import Pagination from "../../components/Pagination.jsx";
+import { currency } from "../../utils/currency.jsx";
 import useMessage from "../../hooks/useMessage.jsx";
-
-const fetchProducts = async (page = 1, category = "") => {
-  const url = `${API_BASE}/api/${API_PATH}/products?page=${page}${category ? `&category=${category}` : ""}`;
-  const res = await axios.get(url);
-  return res.data;
-};
-
-const fetchAllCategories = async () => {
-  const res = await axios.get(`${API_BASE}/api/${API_PATH}/products/all`);
-  return [...new Set(res.data.products.map((p) => p.category))];
-};
 
 function Products() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [products, setProducts] = useState([]);
-  const [pagination, setPagination] = useState({
-    current_page: 1,
-    total_pages: 1,
-    has_pre: false,
-    has_next: false,
-  });
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
   const [categories, setCategories] = useState([]);
   const [currentCategory, setCurrentCategory] = useState("");
   const { showSuccess, showError } = useMessage();
 
+  const fetchProducts = useCallback(async (page = 1, categoryId = "") => {
+    const params = new URLSearchParams({ page: String(page) });
+    if (categoryId) params.set("categoryId", categoryId);
+
+    const res = await api.get(`/api/v1/products?${params}`);
+    setProducts(res.data.items);
+    setPagination(res.data.pagination);
+    if (res.data.categories) setCategories(res.data.categories);
+    return res.data;
+  }, []);
+
   useEffect(() => {
     const init = async () => {
       try {
-        const [productData, categoryList] = await Promise.all([
-          fetchProducts(),
-          fetchAllCategories(),
-        ]);
-        setProducts(productData.products);
-        setPagination(productData.pagination);
-        setCategories(categoryList);
+        await fetchProducts();
       } catch (error) {
-        showError(error.response.data.message);
+        showError(error.response?.data?.error || error.message);
       }
     };
     init();
-  }, [showError]);
-
-  const getProducts = async (page = 1, category = currentCategory) => {
-    try {
-      const data = await fetchProducts(page, category);
-      setProducts(data.products);
-      setPagination(data.pagination);
-    } catch (error) {
-      console.error(error.response);
-    }
-  };
+  }, [fetchProducts, showError]);
 
   const handleCategoryChange = (e) => {
-    const category = e.target.value;
-    setCurrentCategory(category);
-    getProducts(1, category);
+    const categoryId = e.target.value;
+    setCurrentCategory(categoryId);
+    fetchProducts(1, categoryId);
   };
 
-  const goSingleProduct = (id) => {
-    navigate(`/product/${id}`);
-  };
-
-  const addCart = async (id, qty = 1) => {
-    const data = { product_id: id, qty };
+  const addCart = async (product) => {
+    const variant = product.variants?.[0];
+    if (!variant) return;
     try {
-      const url = `${API_BASE}/api/${API_PATH}/cart`;
-      await axios.post(url, { data });
+      await api.post(
+        "/api/v1/cart/items",
+        { variantId: variant.id, qty: 1 },
+        { headers: cartHeaders() },
+      );
       showSuccess(t("api.addCartSuccess"));
     } catch (error) {
-      showError(error.response.data.message);
+      showError(error.response?.data?.error || error.message);
     }
   };
 
   return (
-    <div className="container">
-      <div className="mt-4">
+    <div className="container py-4">
+      {/* Filter bar */}
+      <div className="mb-4">
         <select
           className="form-select"
-          style={{ width: "200px" }}
+          style={{ width: "220px" }}
           value={currentCategory}
           onChange={handleCategoryChange}
         >
           <option value="">{t("products.allCategories")}</option>
-          {categories.map((category) => (
-            <option key={category} value={category}>
-              {category}
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {localizedName(cat.name)}
             </option>
           ))}
         </select>
       </div>
 
-      <div className="row mt-4">
-        {products.map((product) => (
-          <div className="col-md-4 mb-3" key={product.id}>
-            <div className="card h-100">
-              <img
-                src={product.imageUrl}
-                className="card-img-top"
-                alt={product.title}
-                style={{ height: "200px", objectFit: "cover" }}
-              />
-              <div className="card-body">
-                <h5 className="card-title">{product.title}</h5>
-                <p className="card-text">{product.content}</p>
-                <div
-                  className="btn-group btn-group-sm w-100"
-                  role="group"
-                  aria-label="Small button group"
-                >
+      {/* Product grid */}
+      <div className="product-grid">
+        {products.map((product) => {
+          const imgUrl = primaryImageUrl(product.images);
+          const range = priceRange(product.variants);
+          const catName = localizedName(product.category?.name);
+          const name = localizedName(product.name);
+
+          return (
+            <div className="product-card" key={product.id}>
+              <div className="product-card__img-wrap">
+                {imgUrl ? (
+                  <img
+                    src={imgUrl}
+                    className="product-card__img"
+                    alt={name}
+                  />
+                ) : (
+                  <div className="product-card__no-img">
+                    <i className="bi bi-image" />
+                  </div>
+                )}
+                {catName && (
+                  <span className="product-card__category">
+                    <i className="bi bi-tag-fill" />
+                    {catName}
+                  </span>
+                )}
+              </div>
+
+              <div className="product-card__body">
+                <p className="product-card__name">{name}</p>
+                {product.scientificName && (
+                  <p className="product-card__latin">
+                    {product.scientificName}
+                  </p>
+                )}
+                <p className="product-card__price">
+                  {range.min === range.max
+                    ? `NT$ ${currency(range.min)}`
+                    : `NT$ ${currency(range.min)} ~ ${currency(range.max)}`}
+                </p>
+                <div className="product-card__actions">
                   <button
                     type="button"
                     className="btn btn-outline-primary"
-                    onClick={() => goSingleProduct(product.id)}
+                    onClick={() => navigate(`/product/${product.id}`)}
                   >
                     {t("products.viewDetail")}
                   </button>
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => addCart(product.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addCart(product);
+                    }}
                   >
                     {t("common.addToCart")}
                   </button>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
+      </div>
+
+      <div className="mt-4">
         <Pagination
           pagination={pagination}
-          onChangePage={(page) => getProducts(page)}
+          onChangePage={(page) => fetchProducts(page, currentCategory)}
         />
       </div>
     </div>
