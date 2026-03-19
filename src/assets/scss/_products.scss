@@ -1,0 +1,141 @@
+// ── Product list page ─────────────────────────────────────────────────────────
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.75rem;
+}
+
+.product-card {
+  border: none;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  background: var(--bs-body-bg);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+  }
+
+  // ── Image wrapper ───────────────────────────────────────────────────────
+  &__img-wrap {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    background: var(--bs-tertiary-bg);
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+
+    .product-card:hover & {
+      transform: scale(1.05);
+    }
+  }
+
+  // No-image placeholder
+  &__no-img {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bs-secondary-color);
+    font-size: 2.5rem;
+  }
+
+  // ── Category badge on image ─────────────────────────────────────────────
+  &__category {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 2;
+
+    // Frosted-glass pill
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+
+    color: #fff;
+    background: rgba(0, 0, 0, 0.48);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    backdrop-filter: blur(10px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+
+  // ── Content ─────────────────────────────────────────────────────────────
+  &__body {
+    padding: 1.15rem 1.35rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  &__name {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0;
+    color: var(--bs-body-color);
+    line-height: 1.4;
+  }
+
+  &__latin {
+    font-size: 0.78rem;
+    color: var(--bs-secondary-color);
+    font-style: italic;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  &__price {
+    color: $primary;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+
+    .btn {
+      flex: 1;
+      border-radius: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.45rem 0;
+    }
+  }
+}
+
+// ── Dark mode ─────────────────────────────────────────────────────────────────
+[data-bs-theme="dark"] {
+  .product-card {
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
+
+    &:hover {
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    &__category {
+      background: rgba(0, 0, 0, 0.58);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+  }
+}
