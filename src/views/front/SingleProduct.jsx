@@ -86,7 +86,7 @@ function SingleProduct() {
                     cursor: "pointer",
                     border:
                       mainImage === img.url
-                        ? "2px solid #198754"
+                        ? "2px solid var(--bs-primary)"
                         : "2px solid transparent",
                   }}
                   onClick={() => setMainImage(img.url)}
@@ -108,7 +108,7 @@ function SingleProduct() {
             <p className="text-muted fst-italic">{product.scientificName}</p>
           )}
           {product.description && (
-            <p>{localizedName(product.description)}</p>
+            <p style={{ whiteSpace: "pre-line" }}>{localizedName(product.description)}</p>
           )}
 
           {/* 規格選擇 */}

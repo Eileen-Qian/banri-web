@@ -142,7 +142,7 @@ function OrderSuccess() {
           </div>
 
           {/* Next steps */}
-          <div className="card border-0 shadow-sm mb-4" style={{ background: "var(--bs-info-bg-subtle, #e7f5ff)" }}>
+          <div className="card border-0 shadow-sm mb-4" style={{ background: "var(--bs-primary-bg-subtle, #e7f5ff)" }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3">
                 <i className="bi bi-info-circle me-2" />

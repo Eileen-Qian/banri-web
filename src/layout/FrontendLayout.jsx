@@ -93,7 +93,7 @@ function FrontendLayout() {
         <Outlet />
       </main>
 
-      <footer className="site-footer">
+      <footer className="site-footer mt-2">
         <div className="container">
           <div className="site-footer__inner">
             <img src={logo} alt="Banri" className="site-footer__logo" />

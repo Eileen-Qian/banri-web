@@ -149,7 +149,7 @@ function OrderSummary({
           <span className="badge rounded-pill border border-primary text-primary">
             {localizedName(selectedMethodObj.name)}
           </span>
-          <span className="text-success fw-semibold">{t("cart.free")}</span>
+          <span className="text-primary fw-semibold">{t("cart.free")}</span>
         </div>
       );
     }
@@ -162,7 +162,7 @@ function OrderSummary({
     if (shippingLoading) return <span className="text-muted">…</span>;
     if (shippingFee !== null) {
       return Number(shippingFee) === 0
-        ? <span className="text-success fw-semibold">{t("cart.free")}</span>
+        ? <span className="text-primary fw-semibold">{t("cart.free")}</span>
         : <span>NT$ {currency(shipping)}</span>;
     }
     if (shippingError) return <span className="text-danger">{shippingError}</span>;
@@ -718,11 +718,14 @@ function CheckOut() {
                         {isPrivate &&
                           Number(minAmountPrivate) > 0 &&
                           disabled && (
-                            <small className="text-muted ms-1">
-                              {t("cart.minAmountHint", {
-                                amount: currency(Number(minAmountPrivate)),
-                              })}
-                            </small>
+                            <>
+                              <br />
+                              <small className="text-muted">
+                                {t("cart.minAmountHint", {
+                                  amount: currency(Number(minAmountPrivate)),
+                                })}
+                              </small>
+                            </>
                           )}
                         {m.id === "delivery-self_pickup" && (
                           <small className="text-muted ms-1">
@@ -740,7 +743,7 @@ function CheckOut() {
 
           {/* Self-pickup note */}
           {selectedMethod === "delivery-self_pickup" && (
-            <div className="alert alert-info">
+            <div className="alert alert-primary text-primary">
               {t("cart.selfPickupNote")}
             </div>
           )}
