@@ -68,15 +68,6 @@ function FrontendLayout() {
               <li className="nav-item">
                 <NavLink
                   className="nav-link"
-                  to="/checkout"
-                  onClick={closeMenu}
-                >
-                  {t("nav.checkout")}
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink
-                  className="nav-link"
                   to="/order-status"
                   onClick={closeMenu}
                 >

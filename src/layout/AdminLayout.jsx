@@ -100,7 +100,7 @@ function AdminLayout() {
         </div>
       </nav>
       <main style={{ paddingTop: "150px" }}>
-        <div className="mt-4 d-flex justify-content-between">
+        <div className="container mt-4 d-flex justify-content-between">
           <button
             className="btn btn-outline-primary"
             onClick={() => navigate("/")}
