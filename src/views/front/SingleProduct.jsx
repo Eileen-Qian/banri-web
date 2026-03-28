@@ -54,7 +54,48 @@ function SingleProduct() {
   };
 
   if (!product)
-    return <p className="text-center fs-2 mt-5">{t("common.loading")}</p>;
+    return (
+      <div className="container mt-5" aria-hidden="true">
+        <div className="row">
+          <div className="col-md-6">
+            <div
+              className="placeholder-glow bg-secondary bg-opacity-25 rounded mb-3"
+              style={{ width: "100%", height: "400px" }}
+            />
+            <div className="d-flex gap-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="placeholder-glow bg-secondary bg-opacity-25"
+                  style={{ width: "80px", height: "80px" }}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="col-md-6 text-start placeholder-glow">
+            <span
+              className="badge placeholder col-2 mb-2"
+              style={{ height: "22px" }}
+            />
+            <h2>
+              <span className="placeholder col-5" />
+            </h2>
+            <p>
+              <span className="placeholder col-7" />
+            </p>
+            <p>
+              <span className="placeholder col-12" />
+              <span className="placeholder col-10" />
+              <span className="placeholder col-8" />
+            </p>
+            <div className="mb-3">
+              <span className="placeholder col-3 fs-4" />
+            </div>
+            <span className="btn btn-primary disabled placeholder col-12" />
+          </div>
+        </div>
+      </div>
+    );
 
   const allImages = product.images || [];
   const range = priceRange(product.variants);
@@ -108,15 +149,15 @@ function SingleProduct() {
             <p className="text-muted fst-italic">{product.scientificName}</p>
           )}
           {product.description && (
-            <p style={{ whiteSpace: "pre-line" }}>{localizedName(product.description)}</p>
+            <p style={{ whiteSpace: "pre-line" }}>
+              {localizedName(product.description)}
+            </p>
           )}
 
           {/* 規格選擇 */}
           {product.variants?.length > 0 && (
             <div className="mb-3">
-              <label className="form-label fw-bold">
-                {t("common.size")}
-              </label>
+              <label className="form-label fw-bold">{t("common.size")}</label>
               <div className="d-flex gap-2 flex-wrap">
                 {product.variants.map((v) => (
                   <button

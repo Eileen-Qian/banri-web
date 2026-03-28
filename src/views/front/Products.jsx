@@ -13,6 +13,31 @@ import Pagination from "../../components/Pagination.jsx";
 import { currency } from "../../utils/currency.jsx";
 import useMessage from "../../hooks/useMessage.jsx";
 
+function ProductSkeleton() {
+  return (
+    <div className="product-card" aria-hidden="true">
+      <div className="product-card__img-wrap placeholder-glow">
+        <span className="placeholder w-100 h-100" />
+      </div>
+      <div className="product-card__body">
+        <p className="product-card__name placeholder-glow mb-1">
+          <span className="placeholder col-7" />
+        </p>
+        <p className="product-card__latin placeholder-glow mb-1">
+          <span className="placeholder col-5" />
+        </p>
+        <p className="product-card__price placeholder-glow mb-2">
+          <span className="placeholder col-4" />
+        </p>
+        <div className="product-card__actions">
+          <span className="btn btn-outline-primary disabled placeholder" />
+          <span className="btn btn-primary disabled placeholder" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Products() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -20,6 +45,7 @@ function Products() {
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
   const [categories, setCategories] = useState([]);
   const [currentCategory, setCurrentCategory] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const { showSuccess, showError } = useMessage();
 
   const fetchProducts = useCallback(async (page = 1, categoryId = "") => {
@@ -39,6 +65,8 @@ function Products() {
         await fetchProducts();
       } catch (error) {
         showError(error.response?.data?.error || error.message);
+      } finally {
+        setIsLoading(false);
       }
     };
     init();
@@ -85,71 +113,79 @@ function Products() {
       </div>
 
       {/* Product grid */}
-      <div className="product-grid">
-        {products.map((product) => {
-          const imgUrl = primaryImageUrl(product.images);
-          const range = priceRange(product.variants);
-          const catName = localizedName(product.category?.name);
-          const name = localizedName(product.name);
+      {isLoading ? (
+        <div className="product-grid">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <ProductSkeleton key={i} />
+          ))}
+        </div>
+      ) : (
+        <div className="product-grid">
+          {products.map((product) => {
+            const imgUrl = primaryImageUrl(product.images);
+            const range = priceRange(product.variants);
+            const catName = localizedName(product.category?.name);
+            const name = localizedName(product.name);
 
-          return (
-            <div className="product-card" key={product.id}>
-              <div className="product-card__img-wrap">
-                {imgUrl ? (
-                  <img
-                    src={imgUrl}
-                    className="product-card__img"
-                    alt={name}
-                  />
-                ) : (
-                  <div className="product-card__no-img">
-                    <i className="bi bi-image" />
-                  </div>
-                )}
-                {catName && (
-                  <span className="product-card__category">
-                    <i className="bi bi-tag-fill" />
-                    {catName}
-                  </span>
-                )}
-              </div>
+            return (
+              <div className="product-card" key={product.id}>
+                <div className="product-card__img-wrap">
+                  {imgUrl ? (
+                    <img
+                      src={imgUrl}
+                      className="product-card__img"
+                      alt={name}
+                    />
+                  ) : (
+                    <div className="product-card__no-img">
+                      <i className="bi bi-image" />
+                    </div>
+                  )}
+                  {catName && (
+                    <span className="product-card__category">
+                      <i className="bi bi-tag-fill" />
+                      {catName}
+                    </span>
+                  )}
+                </div>
 
-              <div className="product-card__body">
-                <p className="product-card__name">{name}</p>
-                {product.scientificName && (
-                  <p className="product-card__latin">
-                    {product.scientificName}
+                <div className="product-card__body">
+                  <p className="product-card__name">{name}</p>
+                  {product.scientificName && (
+                    <p className="product-card__latin">
+                      {product.scientificName}
+                    </p>
+                  )}
+                  <p className="product-card__price">
+                    {range.min === range.max
+                      ? `NT$ ${currency(range.min)}`
+                      : `NT$ ${currency(range.min)} ~ ${currency(range.max)}`}
                   </p>
-                )}
-                <p className="product-card__price">
-                  {range.min === range.max
-                    ? `NT$ ${currency(range.min)}`
-                    : `NT$ ${currency(range.min)} ~ ${currency(range.max)}`}
-                </p>
-                <div className="product-card__actions">
-                  <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    onClick={() => navigate(`/product/${product.id}`)}
-                  >
-                    {t("products.viewDetail")}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addCart(product);
-                    }}
-                  >
-                    {t("common.addToCart")}
-                  </button>
+                  <div className="product-card__actions">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary"
+                      onClick={() => navigate(`/product/${product.id}`)}
+                    >
+                      {t("products.viewDetail")}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addCart(product);
+                      }}
+                    >
+                      {t("common.addToCart")}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       <div className="mt-4">
         <Pagination

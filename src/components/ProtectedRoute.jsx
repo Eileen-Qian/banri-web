@@ -28,10 +28,12 @@ function ProtectedRoute({ children }) {
 
   if (isLoading)
     return (
-      <RotatingLines
-        color={"var(--bs-primary)"}
-        wrapperStyle={{ justifyContent: "center" }}
-      />
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ height: "calc(100vh - 200px)" }}
+      >
+        <RotatingLines width="80" color="var(--bs-primary)" />
+      </div>
     );
   if (!isAuth) return <Navigate to="/login" />;
   return children;
