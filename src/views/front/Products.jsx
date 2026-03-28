@@ -8,7 +8,6 @@ import {
   primaryImageUrl,
   ikTransform,
   priceRange,
-  cartHeaders,
 } from "../../utils/api";
 import Pagination from "../../components/Pagination.jsx";
 import { currency } from "../../utils/currency.jsx";
@@ -47,7 +46,7 @@ function Products() {
   const [categories, setCategories] = useState([]);
   const [currentCategory, setCurrentCategory] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const { showSuccess, showError } = useMessage();
+  const { showError } = useMessage();
 
   const fetchProducts = useCallback(async (page = 1, categoryId = "") => {
     const params = new URLSearchParams({ page: String(page) });
@@ -77,21 +76,6 @@ function Products() {
     const categoryId = e.target.value;
     setCurrentCategory(categoryId);
     fetchProducts(1, categoryId);
-  };
-
-  const addCart = async (product) => {
-    const variant = product.variants?.[0];
-    if (!variant) return;
-    try {
-      await api.post(
-        "/api/v1/cart/items",
-        { variantId: variant.id, qty: 1 },
-        { headers: cartHeaders() },
-      );
-      showSuccess(t("api.addCartSuccess"));
-    } catch (error) {
-      showError(error.response?.data?.error || error.message);
-    }
   };
 
   return (
@@ -169,16 +153,6 @@ function Products() {
                       onClick={() => navigate(`/product/${product.id}`)}
                     >
                       {t("products.viewDetail")}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addCart(product);
-                      }}
-                    >
-                      {t("common.addToCart")}
                     </button>
                   </div>
                 </div>
