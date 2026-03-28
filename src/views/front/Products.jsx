@@ -129,7 +129,7 @@ function Products() {
             const name = localizedName(product.name);
 
             return (
-              <div className="product-card" key={product.id}>
+              <div className="product-card" key={product.id} onClick={() => navigate(`/product/${product.id}`)}>
                 <div className="product-card__img-wrap">
                   {imgUrl ? (
                     <img
