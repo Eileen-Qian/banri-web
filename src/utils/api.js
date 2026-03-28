@@ -116,6 +116,16 @@ export function localizedName(field) {
 }
 
 /**
+ * Append ImageKit transformation parameters to a URL.
+ * Example: ikTransform(url, "w-400,h-300,cm-extract") → url + "?tr=w-400,h-300,cm-extract"
+ */
+export function ikTransform(url, transforms) {
+  if (!url || !transforms) return url;
+  const sep = url.includes("?") ? "," : "?tr=";
+  return `${url}${sep}${transforms}`;
+}
+
+/**
  * Get the primary image URL from a product's images array.
  * Falls back to the first image, then empty string.
  */

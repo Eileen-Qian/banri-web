@@ -6,6 +6,7 @@ import {
   api,
   localizedName,
   primaryImageUrl,
+  ikTransform,
   priceRange,
   cartHeaders,
 } from "../../utils/api";
@@ -132,7 +133,7 @@ function Products() {
                 <div className="product-card__img-wrap">
                   {imgUrl ? (
                     <img
-                      src={imgUrl}
+                      src={ikTransform(imgUrl, "w-600,h-450,cm-extract")}
                       className="product-card__img"
                       alt={name}
                     />

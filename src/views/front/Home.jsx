@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { NavLink, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
-import { api, localizedName, primaryImageUrl, priceRange } from "../../utils/api";
+import { api, localizedName, primaryImageUrl, ikTransform, priceRange } from "../../utils/api";
 import { currency } from "../../utils/currency";
 import { emailValidation } from "../../utils/validation";
 
@@ -238,7 +238,7 @@ function FeaturedSection() {
                   style={{ "--reveal-delay": `${i * 0.12}s` }}
                   onClick={() => navigate(`/product/${p.id}`)}
                 >
-                  {imgUrl && <img src={imgUrl} alt={localizedName(p.name)} />}
+                  {imgUrl && <img src={ikTransform(imgUrl, "w-600,h-450,cm-extract")} alt={localizedName(p.name)} />}
                   <div className="home-featured__card__body">
                     <p className="home-featured__card__name">{localizedName(p.name)}</p>
                     <p className="home-featured__card__latin">
