@@ -4,6 +4,7 @@
     "cart": "Cart",
     "checkout": "Checkout",
     "orderStatus": "Order Status",
+    "shipping": "Shipping Info",
     "admin": "Admin Panel"
   },
   "common": {
@@ -64,9 +65,10 @@
     },
     "perBoxCapacity": "up to {{count}} per box",
     "itemBoxBreakdown": "×{{qty}} → {{boxes}} box(es)",
+    "mixedPackSummary": "{{qty}} plants, packed in {{boxes}} box(es)",
     "boxUnit": "box(es)",
     "truckUnit": "truck(s)",
-    "shippingCalcHint": "Shipping will be calculated at checkout based on delivery method",
+    "shippingCalcHint": "Shipping fees will be confirmed after order review",
     "zones": {
       "北": "North",
       "中": "Central",
@@ -408,6 +410,24 @@
     "unpaid": "Unpaid",
     "confirmDelete": "Confirm Delete",
     "save": "Save Changes"
+  },
+  "shipping": {
+    "title": "Shipping Information",
+    "rulesTitle": "Shipping Rules",
+    "rule1": "Private delivery fees vary by region. See the rate table below.",
+    "rule2": "Convenience store pickup: NT$ {{fee}} per box.",
+    "rule3": "Self pickup is free at our Banri store.",
+    "feeTableTitle": "Private Delivery Rates",
+    "allCities": "All Cities",
+    "city": "City",
+    "district": "District",
+    "zone": "Zone",
+    "fee": "Fee",
+    "convenienceBoxAlt": "Convenience store box capacity guide",
+    "shippingNote": "Shipping fees vary by method. See",
+    "shippingLink": "Shipping Info",
+    "afterConfirm": "Confirmed after review",
+    "checkoutNote": "After placing your order, we'll confirm the details and email you the shipping fee and payment info."
   },
   "footer": {
     "copy": "© {year} 伴日 Banri. All rights reserved.",

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { ThreeDots } from "react-loader-spinner";
@@ -34,141 +34,7 @@ const NEEDS_DISTRICT = ["delivery-private_delivery"];
 
 /* ── Order Summary Card ─────────────────────────────────────────────────── */
 
-function OrderSummary({
-  t,
-  cartItems,
-  selectedMethod,
-  selectedMethodObj,
-  selectedCity,
-  selectedDistrict,
-  subtotal,
-  shipping,
-  shippingFee,
-  shippingLoading,
-  shippingError,
-  shippingDetail,
-}) {
-  const grandTotal = subtotal + shipping;
-
-  // Convenience-store per-item breakdown
-  const renderBoxItems = () => {
-    if (!shippingDetail?.items || !cartItems) return null;
-    return (
-      <ul className="list-unstyled mb-0 mt-2 ps-1" style={{ fontSize: "0.85rem" }}>
-        {shippingDetail.items.map((est) => {
-          const cart = cartItems.find((ci) => ci.variant?.id === est.variantId);
-          if (!cart) return null;
-          const name = localizedName(cart.variant?.product?.name);
-          const size = localizedName(cart.variant?.size?.name);
-          return (
-            <li key={est.variantId} className="d-flex align-items-start gap-1 mb-1">
-              <span className="text-body-secondary">•</span>
-              <span>
-                {name} {size}{" "}
-                <span className="text-body-secondary">
-                  {t("cart.itemBoxBreakdown", { qty: est.qty, boxes: est.boxes })}
-                </span>
-                {est.perBox > 1 && (
-                  <span className="text-muted ms-1" style={{ fontSize: "0.8em" }}>
-                    ({t("cart.perBoxCapacity", { count: est.perBox })})
-                  </span>
-                )}
-                {est.warning && (
-                  <small className="text-warning d-block">
-                    <i className="bi bi-exclamation-triangle-fill me-1" />
-                    {t(`cart.boxWarning.${est.warning.key}`, est.warning.params)}
-                  </small>
-                )}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-    );
-  };
-
-  // Method-specific breakdown
-  const renderBreakdown = () => {
-    if (shippingLoading) {
-      return <span className="text-muted fst-italic">{t("common.loading")}</span>;
-    }
-    if (!shippingDetail || shippingFee === null) return null;
-
-    if (selectedMethod === "delivery-convenience_store") {
-      const { totalBoxes, unitFee } = shippingDetail;
-      return (
-        <>
-          <div className="d-flex align-items-center gap-2 flex-wrap">
-            <span className="badge rounded-pill border border-primary text-primary">
-              {localizedName(selectedMethodObj.name)}
-            </span>
-            <span className="fw-semibold">
-              {totalBoxes} {t("cart.boxUnit")}
-            </span>
-          </div>
-          <div className="text-body-secondary mt-1" style={{ fontSize: "0.9rem" }}>
-            {t("cart.boxCalc", { count: totalBoxes, fee: currency(Number(unitFee)) })}
-          </div>
-          {renderBoxItems()}
-          {shippingDetail.hasWarnings && (
-            <div className="mt-2">
-              <small className="text-warning">
-                <i className="bi bi-exclamation-triangle-fill me-1" />
-                {t("cart.sizeWarning")}
-              </small>
-            </div>
-          )}
-        </>
-      );
-    }
-
-    if (selectedMethod === "delivery-private_delivery") {
-      const { trucks, feePerTruck } = shippingDetail;
-      return (
-        <>
-          <div className="d-flex align-items-center gap-2 flex-wrap">
-            <span className="badge rounded-pill border border-primary text-primary">
-              {localizedName(selectedMethodObj.name)}
-            </span>
-            <span className="fw-semibold">
-              {trucks} {t("cart.truckUnit")}
-            </span>
-          </div>
-          <div className="text-body-secondary mt-1" style={{ fontSize: "0.9rem" }}>
-            {selectedCity} {selectedDistrict}
-            {" — "}
-            {t("cart.truckCalc", { count: trucks, fee: currency(Number(feePerTruck)) })}
-          </div>
-        </>
-      );
-    }
-
-    if (selectedMethod === "delivery-self_pickup") {
-      return (
-        <div className="d-flex align-items-center gap-2">
-          <span className="badge rounded-pill border border-primary text-primary">
-            {localizedName(selectedMethodObj.name)}
-          </span>
-          <span className="text-primary fw-semibold">{t("cart.free")}</span>
-        </div>
-      );
-    }
-
-    return null;
-  };
-
-  // Shipping fee value
-  const renderShippingValue = () => {
-    if (shippingLoading) return <span className="text-muted">…</span>;
-    if (shippingFee !== null) {
-      return Number(shippingFee) === 0
-        ? <span className="text-primary fw-semibold">{t("cart.free")}</span>
-        : <span>NT$ {currency(shipping)}</span>;
-    }
-    if (shippingError) return <span className="text-danger">{shippingError}</span>;
-    return <span className="text-muted">—</span>;
-  };
-
+function OrderSummary({ t, subtotal }) {
   return (
     <div className="card border-0 shadow-sm mb-4" style={{ background: "var(--bs-tertiary-bg, #f8f9fa)" }}>
       <div className="card-body px-4 py-3">
@@ -177,38 +43,34 @@ function OrderSummary({
           {t("cart.orderSummary")}
         </h6>
 
-        {/* Method breakdown with box/truck count */}
-        {selectedMethod && selectedMethodObj ? (
-          <div className="mb-3 pb-3 border-bottom">
-            {renderBreakdown()}
-          </div>
-        ) : (
-          <div className="mb-3 pb-3 border-bottom">
-            <small className="text-muted fst-italic">
-              {t("cart.selectMethodHint")}
-            </small>
-          </div>
-        )}
-
         {/* Subtotal */}
         <div className="d-flex justify-content-between mb-2">
           <span className="text-body-secondary">{t("cart.subtotal")}</span>
           <span>NT$ {currency(subtotal)}</span>
         </div>
 
-        {/* Shipping */}
+        {/* Shipping note */}
         <div className="d-flex justify-content-between mb-2">
           <span className="text-body-secondary">{t("cart.shippingFee")}</span>
-          {renderShippingValue()}
+          <span className="text-muted">{t("shipping.afterConfirm")}</span>
         </div>
 
         <hr className="my-2" />
 
-        {/* Grand total */}
+        {/* Total */}
         <div className="d-flex justify-content-between fw-bold fs-5">
           <span>{t("cart.grandTotal")}</span>
-          <span>NT$ {currency(shippingFee !== null ? grandTotal : subtotal)}</span>
+          <span>NT$ {currency(subtotal)}</span>
         </div>
+
+        <small className="text-muted d-block mt-3" style={{ lineHeight: 1.7 }}>
+          <i className="bi bi-info-circle me-1" />
+          {t("shipping.checkoutNote")}
+          {<br />}
+          <a href="#/shipping" target="_blank" rel="noopener noreferrer" className="text-primary text-decoration-none">
+            {t("shipping.shippingLink")} <i className="bi bi-box-arrow-up-right" style={{ fontSize: "0.7em" }} />
+          </a>
+        </small>
       </div>
     </div>
   );
@@ -233,10 +95,6 @@ function CheckOut() {
   };
   const [regions, setRegions] = useState({ privateDelivery: [] });
   const [districts, setDistricts] = useState([]);
-  const [shippingFee, setShippingFee] = useState(null);
-  const [shippingDetail, setShippingDetail] = useState(null);
-  const [shippingError, setShippingError] = useState("");
-  const [shippingLoading, setShippingLoading] = useState(false);
   const [minAmountPrivate, setMinAmountPrivate] = useState("0");
   const [storeChains, setStoreChains] = useState([]);
 
@@ -399,9 +257,6 @@ function CheckOut() {
     prevCityRef.current = selectedCity;
     setValue("district", "");
     saveDeliveryAddress(selectedCity, "");
-    setShippingFee(null);
-    setShippingDetail(null);
-    setShippingError("");
   }, [selectedCity, setValue]);
 
   // Reset fields when method changes (skip initial render to preserve saved values)
@@ -415,86 +270,7 @@ function CheckOut() {
     setValue("storeBrand", "");
     setValue("storeName", "");
     setValue("storeNumber", "");
-    setShippingFee(null);
-    setShippingDetail(null);
-    setShippingError("");
   }, [selectedMethod, setValue]);
-
-  // Fetch shipping estimate
-  const fetchShipping = useCallback(async () => {
-    if (!selectedMethod) return;
-
-    // Self-pickup = free
-    if (selectedMethod === "delivery-self_pickup") {
-      setShippingFee("0");
-      setShippingDetail({});
-      return;
-    }
-
-    // Convenience store = auto-calc (no address needed)
-    if (selectedMethod === "delivery-convenience_store") {
-      setShippingLoading(true);
-      try {
-        const res = await api.post(
-          "/api/v1/shipping/estimate",
-          { methodId: selectedMethod },
-          { headers: cartHeaders() },
-        );
-        setShippingFee(res.data.shippingFee);
-        setShippingDetail(res.data.detail);
-        setShippingError("");
-      } catch (error) {
-        setShippingError(error.response?.data?.error || error.message);
-        setShippingFee(null);
-        setShippingDetail(null);
-      } finally {
-        setShippingLoading(false);
-      }
-      return;
-    }
-
-    // Address-based methods
-    if (!selectedCity) {
-      setShippingFee(null);
-      setShippingDetail(null);
-      return;
-    }
-    if (needsDistrict && !selectedDistrict) {
-      setShippingFee(null);
-      setShippingDetail(null);
-      return;
-    }
-
-    setShippingLoading(true);
-    setShippingError("");
-    try {
-      const res = await api.post(
-        "/api/v1/shipping/estimate",
-        {
-          methodId: selectedMethod,
-          city: selectedCity,
-          district: selectedDistrict || undefined,
-        },
-        { headers: cartHeaders() },
-      );
-      setShippingFee(res.data.shippingFee);
-      setShippingDetail(res.data.detail);
-    } catch (error) {
-      if (error.response?.status === 404) {
-        setShippingError(t("cart.noShippingArea"));
-      } else {
-        setShippingError(error.response?.data?.error || error.message);
-      }
-      setShippingFee(null);
-      setShippingDetail(null);
-    } finally {
-      setShippingLoading(false);
-    }
-  }, [selectedMethod, selectedCity, selectedDistrict, needsDistrict, t]);
-
-  useEffect(() => {
-    fetchShipping();
-  }, [fetchShipping]);
 
   // Re-validate on language change
   useEffect(() => {
@@ -577,8 +353,6 @@ function CheckOut() {
   }
 
   const subtotal = Number(total);
-  const shipping = shippingFee ? Number(shippingFee) : 0;
-  const grandTotal = subtotal + shipping;
 
   return (
     <div className="container mt-5">
@@ -902,30 +676,13 @@ function CheckOut() {
             />
           </div>
 
-          {shippingError && (
-            <div className="alert alert-warning mb-3">{shippingError}</div>
-          )}
-
           {/* Order summary card */}
-          <OrderSummary
-            t={t}
-            cartItems={items}
-            selectedMethod={selectedMethod}
-            selectedMethodObj={selectedMethodObj}
-            selectedCity={selectedCity}
-            selectedDistrict={selectedDistrict}
-            subtotal={subtotal}
-            shipping={shipping}
-            shippingFee={shippingFee}
-            shippingLoading={shippingLoading}
-            shippingError={shippingError}
-            shippingDetail={shippingDetail}
-          />
+          <OrderSummary t={t} subtotal={subtotal} />
 
           <button
             type="submit"
             className="btn btn-primary w-100"
-            disabled={isSubmitting || !selectedMethod || !!shippingError}
+            disabled={isSubmitting || !selectedMethod}
           >
             {isSubmitting ? (
               <ThreeDots
@@ -937,14 +694,7 @@ function CheckOut() {
                 wrapperStyle={{ display: "flex", justifyContent: "center" }}
               />
             ) : (
-              <>
-                {t("checkout.submitOrder")}
-                {shippingFee !== null && (
-                  <span className="ms-2">
-                    (NT$ {currency(grandTotal)})
-                  </span>
-                )}
-              </>
+              t("checkout.submitOrder")
             )}
           </button>
         </form>

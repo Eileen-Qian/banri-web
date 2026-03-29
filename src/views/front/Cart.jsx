@@ -190,6 +190,10 @@ function Cart() {
               </div>
               <small className="text-muted d-block mb-3">
                 {t("cart.shippingCalcHint")}
+                {<br />}
+                <NavLink to="/shipping" className="text-primary text-decoration-none">
+                  {t("shipping.shippingLink")} <i className="bi bi-box-arrow-up-right" />
+                </NavLink>
               </small>
               <NavLink className="btn btn-primary w-100" to="/checkout">
                 {t("cart.goCheckout")}

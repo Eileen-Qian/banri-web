@@ -4,6 +4,7 @@
     "cart": "購物車",
     "checkout": "結帳頁面",
     "orderStatus": "訂單查詢",
+    "shipping": "運費說明",
     "admin": "前往後台"
   },
   "common": {
@@ -64,9 +65,10 @@
     },
     "perBoxCapacity": "每箱最多 {{count}} 盆",
     "itemBoxBreakdown": "×{{qty}} → {{boxes}} 箱",
+    "mixedPackSummary": "共 {{qty}} 盆，混裝 {{boxes}} 箱",
     "boxUnit": "箱",
     "truckUnit": "車",
-    "shippingCalcHint": "運費將在結帳時依配送方式計算",
+    "shippingCalcHint": "運費將於訂單確認後另行通知",
     "zones": {
       "北": "北",
       "中": "中",
@@ -408,6 +410,24 @@
     "unpaid": "未付款",
     "confirmDelete": "確認刪除",
     "save": "儲存變更"
+  },
+  "shipping": {
+    "title": "運費說明",
+    "rulesTitle": "運費規則",
+    "rule1": "專車配送依地區計費，請參考下方費率表。",
+    "rule2": "超商取貨運費每箱 NT$ {{fee}}。",
+    "rule3": "自取免運費，請至伴日門市取貨。",
+    "feeTableTitle": "專車配送費率表",
+    "allCities": "全部縣市",
+    "city": "縣市",
+    "district": "地區",
+    "zone": "區域",
+    "fee": "費率",
+    "convenienceBoxAlt": "超商下單規則限制",
+    "shippingNote": "運費將依配送方式另計，詳見",
+    "shippingLink": "運費說明",
+    "afterConfirm": "訂單確認後通知",
+    "checkoutNote": "送出訂單後，我們將確認訂單內容並以 Email 通知您運費金額與匯款資訊。"
   },
   "footer": {
     "copy": "© {year} 伴日 Banri. All rights reserved.",

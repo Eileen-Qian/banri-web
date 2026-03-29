@@ -11,6 +11,7 @@ import AdminProducts from "../views/back/AdminProducts";
 import CheckOut from "../views/front/CheckOut";
 import OrderSuccess from "../views/front/OrderSuccess";
 import OrderStatus from "../views/front/OrderStatus";
+import Shipping from "../views/front/Shipping";
 import AdminPayout from "../layout/AdminLayout";
 import AdminOrders from "../views/back/AdminOrders";
 import AdminShipping from "../views/back/AdminShipping";
@@ -48,6 +49,10 @@ export const router = createHashRouter([
             {
                 path: 'order-status',
                 element: <OrderStatus />
+            },
+            {
+                path: 'shipping',
+                element: <Shipping />
             },
             {
                 path: '*',
