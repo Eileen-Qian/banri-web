@@ -99,7 +99,7 @@ function AdminLayout() {
           </div>
         </div>
       </nav>
-      <main style={{ paddingTop: "150px" }}>
+      <main style={{ paddingTop: "150px", paddingBottom: "20px"}}>
         <div className="container mt-4 d-flex justify-content-between">
           <button
             className="btn btn-outline-primary"
