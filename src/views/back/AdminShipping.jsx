@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { api } from "../../utils/api";
+import { api, localizedName } from "../../utils/api";
 import { currency } from "../../utils/currency";
 import useMessage from "../../hooks/useMessage";
 
@@ -9,7 +9,7 @@ import useMessage from "../../hooks/useMessage";
 const SETTING_DEFS = [
   {
     key: "convenience_store_fee",
-    i18n: "adminShipping.convenienceStoreFee"
+    i18n: "adminShipping.convenienceStoreFee",
   },
   {
     key: "private_delivery_min_amount",
@@ -60,7 +60,8 @@ function AdminShipping() {
     setSettingValues((prev) => ({ ...prev, [key]: savedValues[key] ?? "" }));
   };
 
-  const isModified = (key) => (settingValues[key] ?? "") !== (savedValues[key] ?? "");
+  const isModified = (key) =>
+    (settingValues[key] ?? "") !== (savedValues[key] ?? "");
 
   // ── Rates ───────────────────────────────────────────────────────────────────
 
@@ -68,7 +69,22 @@ function AdminShipping() {
   const [filterCity, setFilterCity] = useState("");
   const [filterDistrict, setFilterDistrict] = useState("");
   const [editingRate, setEditingRate] = useState(null);
-  const [editFee, setEditFee] = useState("");
+  const [editData, setEditData] = useState({
+    city: "",
+    district: "",
+    zone: "",
+    fee: "",
+  });
+  const [isAdding, setIsAdding] = useState(false);
+  const [newData, setNewData] = useState({
+    city: "",
+    district: "",
+    zone: "",
+    fee: "",
+  });
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const newCityRef = useRef(null);
+  const editCityRef = useRef(null);
 
   const fetchRates = useCallback(async () => {
     try {
@@ -83,9 +99,8 @@ function AdminShipping() {
 
   const saveRate = async (id) => {
     try {
-      await api.put(`/api/v1/admin/shipping-rates/${id}`, { fee: editFee });
+      await api.put(`/api/v1/admin/shipping-rates/${id}`, editData);
       setEditingRate(null);
-      setEditFee("");
       await fetchRates();
       showSuccess(t("adminShipping.saved"));
     } catch (error) {
@@ -93,17 +108,72 @@ function AdminShipping() {
     }
   };
 
-  // Derived filter options
-  const cities = useMemo(
-    () => [...new Set(rates.map((r) => r.city).filter(Boolean))].sort(),
+  const createRate = async () => {
+    if (!newData.fee) return;
+    try {
+      await api.post("/api/v1/admin/shipping-rates", {
+        deliveryMethodId: PRIVATE_DELIVERY_ID,
+        ...newData,
+      });
+      setIsAdding(false);
+      setNewData({ city: "", district: "", zone: "", fee: "" });
+      await fetchRates();
+      showSuccess(t("adminShipping.saved"));
+    } catch (error) {
+      showError(error.response?.data?.error || error.message);
+    }
+  };
+
+  const deleteRate = async () => {
+    if (!deleteTarget) return;
+    // Check if this is the last item in the filtered city
+    const targetRate = rates.find((r) => r.id === deleteTarget);
+    const cityZh = targetRate?.city?.zh;
+    const cityCount = cityZh
+      ? rates.filter((r) => r.city?.zh === cityZh).length
+      : 0;
+
+    try {
+      await api.delete(`/api/v1/admin/shipping-rates/${deleteTarget}`);
+      setDeleteTarget(null);
+
+      // If last item in this city, reset filter to show all
+      if (cityZh === filterCity && cityCount <= 1) {
+        setFilterCity("");
+        setFilterDistrict("");
+      }
+
+      await fetchRates();
+      showSuccess(t("adminShipping.deleted"));
+    } catch (error) {
+      showError(error.response?.data?.error || error.message);
+    }
+  };
+
+  // All existing city values (zh) for datalist suggestions
+  const allCities = useMemo(
+    () => [...new Set(rates.map((r) => r.city?.zh).filter(Boolean))].sort(),
     [rates],
   );
 
+  // Derived filter options
+  const cities = useMemo(() => {
+    const seen = new Map();
+    for (const r of rates) {
+      if (r.city) seen.set(r.city.zh, r.city);
+    }
+    return [...seen.values()].sort((a, b) => a.zh.localeCompare(b.zh, "zh-TW"));
+  }, [rates]);
+
   const districts = useMemo(() => {
     const filtered = filterCity
-      ? rates.filter((r) => r.city === filterCity)
+      ? rates.filter((r) => r.city?.zh === filterCity)
       : rates;
-    return [...new Set(filtered.map((r) => r.district).filter(Boolean))].sort();
+    const seen = new Map();
+    for (const r of filtered) {
+      if (r.district) seen.set(r.district.zh, r.district);
+    }
+    return [...seen.values()].sort((a, b) => a.zh.localeCompare(b.zh, "zh-TW"));
   }, [rates, filterCity]);
 
   // Reset district when city changes
@@ -111,12 +181,30 @@ function AdminShipping() {
     setFilterDistrict("");
   }, [filterCity]);
 
+  // Focus and scroll to new row when adding
+  useEffect(() => {
+    if (isAdding && newCityRef.current) {
+      newCityRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      newCityRef.current.focus();
+    }
+  }, [isAdding]);
+
+  // Focus first input when editing
+  useEffect(() => {
+    if (editingRate && editCityRef.current) {
+      editCityRef.current.focus();
+    }
+  }, [editingRate]);
+
   // Client-side filtered rates
   const filteredRates = useMemo(() => {
     let result = rates;
-    if (filterCity) result = result.filter((r) => r.city === filterCity);
+    if (filterCity) result = result.filter((r) => r.city?.zh === filterCity);
     if (filterDistrict)
-      result = result.filter((r) => r.district === filterDistrict);
+      result = result.filter((r) => r.district?.zh === filterDistrict);
     return result;
   }, [rates, filterCity, filterDistrict]);
 
@@ -185,6 +273,18 @@ function AdminShipping() {
         <div className="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
           <h5 className="mb-0">{t("adminShipping.ratesSection")}</h5>
           <div className="d-flex gap-2 align-items-center">
+            {!isAdding && (
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => {
+                  setIsAdding(true);
+                  setEditingRate(null);
+                }}
+              >
+                <i className="bi bi-plus-lg me-1" />
+                {t("adminShipping.addRate")}
+              </button>
+            )}
             <select
               className="form-select form-select-sm"
               style={{ width: "auto" }}
@@ -193,8 +293,8 @@ function AdminShipping() {
             >
               <option value="">{t("adminShipping.allCities")}</option>
               {cities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
+                <option key={c.zh} value={c.zh}>
+                  {localizedName(c)}
                 </option>
               ))}
             </select>
@@ -206,8 +306,8 @@ function AdminShipping() {
             >
               <option value="">{t("adminShipping.allDistricts")}</option>
               {districts.map((d) => (
-                <option key={d} value={d}>
-                  {d}
+                <option key={d.zh} value={d.zh}>
+                  {localizedName(d)}
                 </option>
               ))}
             </select>
@@ -229,57 +329,223 @@ function AdminShipping() {
                 </tr>
               </thead>
               <tbody>
-                {filteredRates.map((r) => (
-                  <tr key={r.id}>
-                    <td>{r.city || "—"}</td>
-                    <td>{r.district || "—"}</td>
-                    <td>{r.zone || "—"}</td>
+                {/* Add new row */}
+                {isAdding && (
+                  <tr>
                     <td>
-                      {editingRate === r.id ? (
-                        <div className="input-group input-group-sm">
-                          <input
-                            type="number"
-                            className="form-control"
-                            value={editFee}
-                            onChange={(e) => setEditFee(e.target.value)}
-                            onKeyDown={(e) =>
-                              e.key === "Enter" && saveRate(r.id)
-                            }
-                            autoFocus
-                          />
-                          <button
-                            className="btn btn-primary btn-sm"
-                            onClick={() => saveRate(r.id)}
-                          >
-                            ✓
-                          </button>
-                          <button
-                            className="btn btn-outline-secondary btn-sm"
-                            onClick={() => setEditingRate(null)}
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ) : (
-                        <span>NT$ {currency(Number(r.fee))}</span>
-                      )}
+                      <input
+                        ref={newCityRef}
+                        type="text"
+                        className="form-control form-control-sm"
+                        value={newData.city}
+                        placeholder={t("adminShipping.city")}
+                        list="city-options"
+                        onKeyDown={(e) =>
+                          e.key === "Escape" && setIsAdding(false)
+                        }
+                        onChange={(e) =>
+                          setNewData((p) => ({ ...p, city: e.target.value }))
+                        }
+                      />
                     </td>
                     <td>
-                      {editingRate !== r.id && (
+                      <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        value={newData.district}
+                        placeholder={t("adminShipping.district")}
+                        onKeyDown={(e) =>
+                          e.key === "Escape" && setIsAdding(false)
+                        }
+                        onChange={(e) =>
+                          setNewData((p) => ({
+                            ...p,
+                            district: e.target.value,
+                          }))
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        value={newData.zone}
+                        placeholder={t("adminShipping.zone")}
+                        onKeyDown={(e) =>
+                          e.key === "Escape" && setIsAdding(false)
+                        }
+                        onChange={(e) =>
+                          setNewData((p) => ({ ...p, zone: e.target.value }))
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        className="form-control form-control-sm"
+                        value={newData.fee}
+                        placeholder={t("adminShipping.fee")}
+                        onChange={(e) =>
+                          setNewData((p) => ({ ...p, fee: e.target.value }))
+                        }
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") createRate();
+                          if (e.key === "Escape") setIsAdding(false);
+                        }}
+                      />
+                    </td>
+                    <td>
+                      <div className="d-flex gap-1">
                         <button
-                          className="btn btn-outline-primary btn-sm"
+                          className="btn btn-primary btn-sm"
+                          onClick={createRate}
+                        >
+                          ✓
+                        </button>
+                        <button
+                          className="btn btn-outline-secondary btn-sm"
                           onClick={() => {
-                            setEditingRate(r.id);
-                            setEditFee(r.fee.toString());
+                            setIsAdding(false);
+                            setNewData({
+                              city: "",
+                              district: "",
+                              zone: "",
+                              fee: "",
+                            });
                           }}
                         >
-                          {t("adminShipping.editFee")}
+                          ✕
                         </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
+                )}
+                {filteredRates.map((r) => (
+                  <tr key={r.id}>
+                    {editingRate === r.id ? (
+                      <>
+                        <td>
+                          <input
+                            ref={editCityRef}
+                            type="text"
+                            className="form-control form-control-sm"
+                            value={editData.city}
+                            list="city-options"
+                            onKeyDown={(e) =>
+                              e.key === "Escape" && setEditingRate(null)
+                            }
+                            onChange={(e) =>
+                              setEditData((p) => ({
+                                ...p,
+                                city: e.target.value,
+                              }))
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            className="form-control form-control-sm"
+                            value={editData.district}
+                            onKeyDown={(e) =>
+                              e.key === "Escape" && setEditingRate(null)
+                            }
+                            onChange={(e) =>
+                              setEditData((p) => ({
+                                ...p,
+                                district: e.target.value,
+                              }))
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            className="form-control form-control-sm"
+                            value={editData.zone}
+                            onKeyDown={(e) =>
+                              e.key === "Escape" && setEditingRate(null)
+                            }
+                            onChange={(e) =>
+                              setEditData((p) => ({
+                                ...p,
+                                zone: e.target.value,
+                              }))
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            className="form-control form-control-sm"
+                            value={editData.fee}
+                            onChange={(e) =>
+                              setEditData((p) => ({
+                                ...p,
+                                fee: e.target.value,
+                              }))
+                            }
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") saveRate(r.id);
+                              if (e.key === "Escape") setEditingRate(null);
+                            }}
+                          />
+                        </td>
+                        <td>
+                          <div className="d-flex gap-1">
+                            <button
+                              className="btn btn-primary btn-sm"
+                              onClick={() => saveRate(r.id)}
+                            >
+                              ✓
+                            </button>
+                            <button
+                              className="btn btn-outline-secondary btn-sm"
+                              onClick={() => setEditingRate(null)}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td>{r.city ? localizedName(r.city) : "—"}</td>
+                        <td>{r.district ? localizedName(r.district) : "—"}</td>
+                        <td>{r.zone ? localizedName(r.zone) : "—"}</td>
+                        <td>NT$ {currency(Number(r.fee))}</td>
+                        <td>
+                          <div className="d-flex gap-1">
+                            <button
+                              className="btn btn-outline-primary btn-sm"
+                              title={t("adminShipping.editFee")}
+                              onClick={() => {
+                                setIsAdding(false);
+                                setEditingRate(r.id);
+                                setEditData({
+                                  city: r.city?.zh || "",
+                                  district: r.district?.zh || "",
+                                  zone: r.zone?.zh || "",
+                                  fee: r.fee.toString(),
+                                });
+                              }}
+                            >
+                              <i className="bi bi-pencil" />
+                            </button>
+                            <button
+                              className="btn btn-outline-danger btn-sm"
+                              title={t("common.delete")}
+                              onClick={() => setDeleteTarget(r.id)}
+                            >
+                              <i className="bi bi-trash" />
+                            </button>
+                          </div>
+                        </td>
+                      </>
+                    )}
+                  </tr>
                 ))}
-                {filteredRates.length === 0 && (
+                {filteredRates.length === 0 && !isAdding && (
                   <tr>
                     <td colSpan="5" className="text-center text-muted py-4">
                       —
@@ -291,6 +557,48 @@ function AdminShipping() {
           </div>
         </div>
       </div>
+
+      <datalist id="city-options">
+        {allCities.map((c) => (
+          <option key={c} value={c} />
+        ))}
+      </datalist>
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div
+          className="modal d-block"
+          tabIndex="-1"
+          style={{ background: "rgba(0,0,0,0.4)" }}
+          onClick={() => setDeleteTarget(null)}
+        >
+          <div
+            className="modal-dialog modal-sm modal-dialog-centered"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-content">
+              <div className="modal-body text-center py-4">
+                <i
+                  className="bi bi-exclamation-triangle text-warning"
+                  style={{ fontSize: "2rem" }}
+                />
+                <p className="mt-3 mb-0">{t("adminShipping.deleteConfirm")}</p>
+              </div>
+              <div className="modal-footer justify-content-center border-0 pt-0">
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  onClick={() => setDeleteTarget(null)}
+                >
+                  {t("common.cancel")}
+                </button>
+                <button className="btn btn-danger btn-sm" onClick={deleteRate}>
+                  {t("common.delete")}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

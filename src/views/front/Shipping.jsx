@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { api } from "../../utils/api";
+import { api, localizedName } from "../../utils/api";
 import { currency } from "../../utils/currency";
 import convenienceShippingZh from "../../assets/images/convenience-shipping-zh.png";
 import convenienceShippingEn from "../../assets/images/convenience-shipping-en.png";
@@ -21,13 +21,16 @@ function Shipping() {
       .catch(console.error);
   }, []);
 
-  const cities = useMemo(
-    () => [...new Set(rates.map((r) => r.city).filter(Boolean))].sort(),
-    [rates],
-  );
+  const cities = useMemo(() => {
+    const seen = new Map();
+    for (const r of rates) {
+      if (r.city && !seen.has(r.city.zh)) seen.set(r.city.zh, r.city);
+    }
+    return [...seen.values()].sort((a, b) => a.zh.localeCompare(b.zh, "zh-TW"));
+  }, [rates]);
 
   const filteredRates = useMemo(
-    () => (filterCity ? rates.filter((r) => r.city === filterCity) : rates),
+    () => (filterCity ? rates.filter((r) => r.city?.zh === filterCity) : rates),
     [rates, filterCity],
   );
 
@@ -77,8 +80,8 @@ function Shipping() {
             >
               <option value="">{t("shipping.allCities")}</option>
               {cities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
+                <option key={c.zh} value={c.zh}>
+                  {localizedName(c)}
                 </option>
               ))}
             </select>
@@ -100,9 +103,9 @@ function Shipping() {
               <tbody>
                 {filteredRates.map((r, i) => (
                   <tr key={i}>
-                    <td>{r.city || "—"}</td>
-                    <td>{r.district || "—"}</td>
-                    <td>{r.zone || "—"}</td>
+                    <td>{r.city ? localizedName(r.city) : "—"}</td>
+                    <td>{r.district ? localizedName(r.district) : "—"}</td>
+                    <td>{r.zone ? localizedName(r.zone) : "—"}</td>
                     <td className="text-end">NT$ {currency(Number(r.fee))}</td>
                   </tr>
                 ))}

@@ -329,7 +329,10 @@
     "allCities": "全部縣市",
     "allDistricts": "全部地區",
     "convenienceStoreFee": "超商運費（每箱）",
-    "privateDeliveryMinAmount": "專車配送低消"
+    "privateDeliveryMinAmount": "專車配送低消",
+    "addRate": "新增費率",
+    "deleted": "已刪除",
+    "deleteConfirm": "確定要刪除此筆運費設定嗎？"
   },
   "productModal": {
     "createTitle": "新增產品",

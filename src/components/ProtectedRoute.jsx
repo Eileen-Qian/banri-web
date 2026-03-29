@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate } from "react-router";
 import { RotatingLines } from "react-loader-spinner";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,8 @@ function ProtectedRoute({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const { showError } = useMessage();
   const { t } = useTranslation();
+  const tRef = useRef(t);
+  tRef.current = t;
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -18,13 +20,13 @@ function ProtectedRoute({ children }) {
         await api.get("/api/v1/admin/verify");
         setIsAuth(true);
       } catch {
-        showError(t("api.sessionExpired"));
+        showError(tRef.current("api.sessionExpired"));
       } finally {
         setIsLoading(false);
       }
     };
     checkLogin();
-  }, [showError, t]);
+  }, [showError]);
 
   if (isLoading)
     return (
