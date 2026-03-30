@@ -313,6 +313,7 @@ function CheckOut() {
         state: {
           order: {
             id: res.data.orderId,
+            orderNumber: res.data.orderNumber,
             email: formData.email,
             name: formData.name,
             deliveryMethodId: selectedMethod,

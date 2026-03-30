@@ -91,11 +91,8 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                         <td className="text-muted" style={{ width: "120px" }}>
                           {t("orderModal.orderId")}
                         </td>
-                        <td
-                          className="text-start"
-                          style={{ wordBreak: "break-all" }}
-                        >
-                          {tempOrder.id}
+                        <td className="text-start">
+                          {tempOrder.orderNumber || tempOrder.id}
                         </td>
                       </tr>
                       <tr>

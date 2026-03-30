@@ -93,9 +93,7 @@ function AdminOrders() {
               {orders.map((order) => (
                 <tr key={order.id}>
                   <td>
-                    <span title={order.id}>
-                      {order.id.substring(0, 8)}...
-                    </span>
+                    {order.orderNumber || order.id.substring(0, 8)}
                   </td>
                   <td>{order.email}</td>
                   <td>{order.name}</td>

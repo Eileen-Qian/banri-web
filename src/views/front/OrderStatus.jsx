@@ -195,8 +195,8 @@ function OrderList({ t, orders, onSelect }) {
               >
                 <div className="d-flex justify-content-between align-items-start">
                   <div>
-                    <div className="fw-semibold text-break" style={{ fontSize: "0.85rem" }}>
-                      {order.id}
+                    <div className="fw-semibold">
+                      {order.orderNumber || order.id}
                     </div>
                     <small className="text-muted">
                       {formatDate(order.createAt)}
@@ -254,8 +254,8 @@ function OrderDetail({ t, order }) {
           <div className="d-flex justify-content-between align-items-start mb-3">
             <div>
               <small className="text-muted">{t("orderStatus.orderId")}</small>
-              <div className="fw-bold text-break" style={{ fontSize: "0.95rem" }}>
-                {order.id}
+              <div className="fw-bold">
+                {order.orderNumber || order.id}
               </div>
             </div>
             <span

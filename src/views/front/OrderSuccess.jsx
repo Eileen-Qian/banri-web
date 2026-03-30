@@ -73,8 +73,8 @@ function OrderSuccess() {
               <div className="d-flex justify-content-between align-items-start mb-3">
                 <div>
                   <small className="text-muted">{t("orderSuccess.orderId")}</small>
-                  <div className="fw-bold text-break" style={{ fontSize: "0.95rem" }}>
-                    {order.id}
+                  <div className="fw-bold">
+                    {order.orderNumber || order.id}
                   </div>
                 </div>
                 <span className={`badge ${order.isPaid ? "bg-success" : "bg-warning text-dark"}`}>
