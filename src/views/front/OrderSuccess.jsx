@@ -47,8 +47,6 @@ function OrderSuccess() {
   }
 
   const subtotal = Number(order.total);
-  const shipping = Number(order.shippingFee);
-  const grandTotal = Number(order.grandTotal);
   const methodName = order.deliveryMethodName
     ? localizedName(order.deliveryMethodName)
     : order.deliveryMethodId?.replace("delivery-", "").replace(/_/g, " ");
@@ -105,7 +103,11 @@ function OrderSuccess() {
               {order.storeName && (
                 <div className="mb-3">
                   <small className="text-muted">{t("orderSuccess.pickupStore")}</small>
-                  <div>{order.storeBrand} — {order.storeName} ({order.storeNumber})</div>
+                  <div>
+                    {order.storeBrandName
+                      ? localizedName(order.storeBrandName)
+                      : order.storeBrand} — {order.storeName} ({order.storeNumber})
+                  </div>
                 </div>
               )}
             </div>
@@ -132,11 +134,11 @@ function OrderSuccess() {
               </div>
               <div className="d-flex justify-content-between mb-1">
                 <span className="text-muted">{t("cart.shippingFee")}</span>
-                <span>{shipping === 0 ? t("cart.free") : `NT$ ${currency(shipping)}`}</span>
+                <span className="text-muted">{t("shipping.afterConfirm")}</span>
               </div>
               <div className="d-flex justify-content-between fw-bold fs-5 mt-2">
                 <span>{t("cart.grandTotal")}</span>
-                <span>NT$ {currency(grandTotal)}</span>
+                <span>NT$ {currency(subtotal)}</span>
               </div>
             </div>
           </div>

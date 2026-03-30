@@ -141,6 +141,7 @@
     "storeNamePlaceholder": "例：田尾店",
     "storeNumber": "門市店號",
     "storeNumberPlaceholder": "例：123456",
+    "lookupStore": "查詢門市",
     "message": "留言",
     "submitOrder": "送出訂單"
   },

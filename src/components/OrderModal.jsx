@@ -138,9 +138,11 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                             {t("cart.deliveryMethod")}
                           </td>
                           <td className="text-start">
-                            {tempOrder.deliveryMethodId
-                              .replace("delivery-", "")
-                              .replace(/_/g, " ")}
+                            {tempOrder.deliveryMethodName
+                              ? localizedName(tempOrder.deliveryMethodName)
+                              : tempOrder.deliveryMethodId
+                                  .replace("delivery-", "")
+                                  .replace(/_/g, " ")}
                           </td>
                         </tr>
                       )}
@@ -150,7 +152,9 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                             {t("orderModal.store")}
                           </td>
                           <td className="text-start">
-                            {tempOrder.storeBrand} — {tempOrder.storeName} ({tempOrder.storeNumber})
+                            {tempOrder.storeBrandName
+                              ? localizedName(tempOrder.storeBrandName)
+                              : tempOrder.storeBrand} — {tempOrder.storeName} ({tempOrder.storeNumber})
                           </td>
                         </tr>
                       ) : (

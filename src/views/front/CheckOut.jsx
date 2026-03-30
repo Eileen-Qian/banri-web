@@ -18,6 +18,7 @@ import {
 } from "../../utils/api";
 import { currency } from "../../utils/currency";
 import useMessage from "../../hooks/useMessage";
+
 import {
   emailValidation,
   taiwanPhoneValidation,
@@ -183,10 +184,15 @@ function CheckOut() {
 
   const selectedCity = watch("city");
   const selectedDistrict = watch("district");
+  const selectedStoreBrand = watch("storeBrand");
 
   const needsAddress = NEEDS_ADDRESS.includes(selectedMethod);
   const needsDistrict = NEEDS_DISTRICT.includes(selectedMethod);
   const isConvenienceStore = selectedMethod === "delivery-convenience_store";
+
+  // Find the selected chain's store-finder URL (if any)
+  const selectedChain = storeChains.find((c) => c.id === selectedStoreBrand);
+  const finderUrl = selectedChain?.finderUrl;
 
   const selectedMethodObj = methods.find((m) => m.id === selectedMethod);
 
@@ -315,6 +321,7 @@ function CheckOut() {
             district: formData.district || "",
             address: formData.address || "",
             storeBrand: formData.storeBrand || "",
+            storeBrandName: selectedChain?.name ?? null,
             storeName: formData.storeName || "",
             storeNumber: formData.storeNumber || "",
             shippingFee: res.data.shippingFee,
@@ -606,20 +613,34 @@ function CheckOut() {
                 <label htmlFor="storeBrand" className="form-label">
                   {t("checkout.storeBrand")}
                 </label>
-                <select
-                  id="storeBrand"
-                  className="form-select"
-                  {...register("storeBrand", {
-                    required: isConvenienceStore ? t("validation.storeBrandRequired") : false,
-                  })}
-                >
-                  <option value="">{t("checkout.storeBrandPlaceholder")}</option>
-                  {storeChains.map((chain) => (
-                    <option key={chain.id} value={chain.id}>
-                      {localizedName(chain.name)}
-                    </option>
-                  ))}
-                </select>
+                <div className="d-flex gap-2">
+                  <select
+                    id="storeBrand"
+                    className="form-select"
+                    {...register("storeBrand", {
+                      required: isConvenienceStore ? t("validation.storeBrandRequired") : false,
+                    })}
+                  >
+                    <option value="">{t("checkout.storeBrandPlaceholder")}</option>
+                    {storeChains.map((chain) => (
+                      <option key={chain.id} value={chain.id}>
+                        {localizedName(chain.name)}
+                      </option>
+                    ))}
+                  </select>
+                  {finderUrl && (
+                    <a
+                      href={finderUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-outline-primary text-nowrap"
+                    >
+                      <i className="bi bi-geo-alt me-1" />
+                      {t("checkout.lookupStore")}
+                      <i className="bi bi-box-arrow-up-right ms-1 small" />
+                    </a>
+                  )}
+                </div>
                 {errors.storeBrand && (
                   <p className="text-danger">{errors.storeBrand.message}</p>
                 )}

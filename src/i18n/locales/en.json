@@ -141,6 +141,7 @@
     "storeNamePlaceholder": "e.g. Tianwei Branch",
     "storeNumber": "Store Number",
     "storeNumberPlaceholder": "e.g. 123456",
+    "lookupStore": "Find Store",
     "message": "Message",
     "submitOrder": "Place Order"
   },
