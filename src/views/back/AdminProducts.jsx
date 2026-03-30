@@ -69,10 +69,17 @@ function AdminProducts() {
     init();
   }, [showError]);
 
-  const openModal = (type, product) => {
+  const openModal = async (type, product) => {
     setModalType(type);
     if (type === "create") {
       setTemplateProduct(INITIAL_TEMPLATE_DATA);
+    } else if (type === "edit" && product?.id) {
+      try {
+        const res = await api.get(`/api/v1/admin/products/${product.id}`);
+        setTemplateProduct(res.data);
+      } catch {
+        setTemplateProduct(product);
+      }
     } else {
       setTemplateProduct(product);
     }

@@ -1,8 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
 
 import { api, localizedName } from "../utils/api";
 import useMessage from "../hooks/useMessage";
+import SortableImageItem from "./SortableImageItem";
 
 function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
   const { t } = useTranslation();
@@ -125,14 +140,40 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
     });
   };
 
+  const getImageId = (img) => img.fileId || img.id || img.url;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setTempData((prev) => {
+      const ids = prev.images.map(getImageId);
+      const oldIndex = ids.indexOf(active.id);
+      const newIndex = ids.indexOf(over.id);
+      // Primary stays at index 0 — block moves to/from position 0
+      if (oldIndex === 0 || newIndex === 0) return prev;
+      return { ...prev, images: arrayMove(prev.images, oldIndex, newIndex) };
+    });
+  };
+
   const setPrimary = (index) =>
-    setTempData((prev) => ({
-      ...prev,
-      images: prev.images.map((img, i) => ({
-        ...img,
-        isPrimary: i === index,
-      })),
-    }));
+    setTempData((prev) => {
+      const images = [...prev.images];
+      const [target] = images.splice(index, 1);
+      return {
+        ...prev,
+        images: [
+          { ...target, isPrimary: true },
+          ...images.map((img) => ({ ...img, isPrimary: false })),
+        ],
+      };
+    });
 
   // ── Variant management ────────────────────────────────────────────────────
 
@@ -300,44 +341,28 @@ function ProductModal({ getProducts, modalType, templateProduct, closeModal }) {
                     <p className="text-muted small">{t("common.loading")}</p>
                   )}
 
-                  <div className="d-flex flex-column gap-2 mt-2">
-                    {tempData.images.map((img, index) => (
-                      <div
-                        key={img.fileId || img.id || img.url}
-                        className="position-relative border rounded p-1"
-                      >
-                        <img
-                          src={img.url}
-                          alt=""
-                          className="img-fluid"
-                          style={{
-                            maxHeight: "120px",
-                            objectFit: "cover",
-                            width: "100%",
-                          }}
-                        />
-                        <div className="d-flex gap-1 mt-1">
-                          <button
-                            type="button"
-                            className={`btn btn-sm flex-grow-1 ${img.isPrimary ? "btn-success" : "btn-outline-secondary"}`}
-                            onClick={() => setPrimary(index)}
-                            disabled={img.isPrimary}
-                          >
-                            {img.isPrimary
-                              ? t("productModal.primary")
-                              : t("productModal.setPrimary")}
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-outline-danger"
-                            onClick={() => removeImage(index)}
-                          >
-                            <i className="bi bi-trash" />
-                          </button>
-                        </div>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext
+                      items={tempData.images.map(getImageId)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="d-flex flex-column gap-2 mt-2">
+                        {tempData.images.map((img, index) => (
+                          <SortableImageItem
+                            key={getImageId(img)}
+                            image={img}
+                            index={index}
+                            onSetPrimary={setPrimary}
+                            onRemove={removeImage}
+                          />
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </SortableContext>
+                  </DndContext>
                 </div>
 
                 {/* ── Right: Fields ── */}
