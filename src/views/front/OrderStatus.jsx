@@ -8,6 +8,12 @@ import { api, localizedName } from "../../utils/api";
 import { currency } from "../../utils/currency";
 import { emailValidation } from "../../utils/validation";
 
+function paymentStatus(order) {
+  if (order.isPaid) return { key: "statusPaid", badge: "bg-success" };
+  if (order.paymentNotifiedAt) return { key: "statusVerifying", badge: "bg-warning text-dark" };
+  return { key: "statusPending", badge: "bg-secondary" };
+}
+
 function OrderStatus() {
   const { t } = useTranslation();
   const [orders, setOrders] = useState(null); // list view
@@ -18,6 +24,7 @@ function OrderStatus() {
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm({ mode: "onSubmit", defaultValues: { email: "", orderId: "" } });
 
@@ -137,7 +144,7 @@ function OrderStatus() {
                   {t("orderStatus.backToList")}
                 </button>
               )}
-              <OrderDetail t={t} order={singleOrder} />
+              <OrderDetail t={t} order={singleOrder} email={getValues("email")} onUpdate={setSingleOrder} />
             </>
           )}
 
@@ -183,7 +190,7 @@ function OrderList({ t, orders, onSelect }) {
         </h6>
         <div className="list-group list-group-flush">
           {orders.map((order) => {
-            const grandTotal = Number(order.grandTotal);
+            const subtotal = Number(order.total);
             const methodName = order.deliveryMethodName
               ? localizedName(order.deliveryMethodName)
               : "";
@@ -205,13 +212,11 @@ function OrderList({ t, orders, onSelect }) {
                     </small>
                   </div>
                   <div className="text-end ms-3 flex-shrink-0">
-                    <div className="fw-bold">NT$ {currency(grandTotal)}</div>
+                    <div className="fw-bold">NT$ {currency(subtotal)}</div>
                     <span
-                      className={`badge ${order.isPaid ? "bg-success" : "bg-warning text-dark"}`}
+                      className={`badge ${paymentStatus(order).badge}`}
                     >
-                      {order.isPaid
-                        ? t("orderStatus.statusPaid")
-                        : t("orderStatus.statusPending")}
+                      {t(`orderStatus.${paymentStatus(order).key}`)}
                     </span>
                   </div>
                 </div>
@@ -226,10 +231,31 @@ function OrderList({ t, orders, onSelect }) {
 
 /* ── Single Order Detail ────────────────────────────────────────────────── */
 
-function OrderDetail({ t, order }) {
+function OrderDetail({ t, order, email, onUpdate }) {
+  const [lastFive, setLastFive] = useState("");
+  const [amount, setAmount] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(!!order.paymentNotifiedAt);
+
+  const handlePaymentNotify = async () => {
+    if (!/^\d{5}$/.test(lastFive) || !amount) return;
+    setSubmitting(true);
+    try {
+      await api.put(`/api/v1/orders/${order.id}/payment-notify`, {
+        email,
+        lastFive,
+        amount: Number(amount),
+      });
+      setSubmitted(true);
+      onUpdate?.({ ...order, paymentLastFive: lastFive, paymentAmount: amount, paymentNotifiedAt: new Date().toISOString() });
+    } catch {
+      // error handled silently
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const subtotal = Number(order.total);
-  const shipping = Number(order.shippingFee);
-  const grandTotal = Number(order.grandTotal);
 
   const methodName = order.deliveryMethodName
     ? localizedName(order.deliveryMethodName)
@@ -259,11 +285,9 @@ function OrderDetail({ t, order }) {
               </div>
             </div>
             <span
-              className={`badge fs-6 ${order.isPaid ? "bg-success" : "bg-warning text-dark"}`}
+              className={`badge fs-6 ${paymentStatus(order).badge}`}
             >
-              {order.isPaid
-                ? t("orderStatus.statusPaid")
-                : t("orderStatus.statusPending")}
+              {t(`orderStatus.${paymentStatus(order).key}`)}
             </span>
           </div>
 
@@ -322,16 +346,74 @@ function OrderDetail({ t, order }) {
           </div>
           <div className="d-flex justify-content-between mb-1">
             <span className="text-muted">{t("cart.shippingFee")}</span>
-            <span>
-              {shipping === 0 ? t("cart.free") : `NT$ ${currency(shipping)}`}
-            </span>
+            <span className="text-muted">{t("shipping.afterConfirm")}</span>
           </div>
           <div className="d-flex justify-content-between fw-bold fs-5 mt-2">
             <span>{t("cart.grandTotal")}</span>
-            <span>NT$ {currency(grandTotal)}</span>
+            <span>NT$ {currency(subtotal)}</span>
           </div>
         </div>
       </div>
+
+      {/* Payment notify form */}
+      {!order.isPaid && (
+        <div className="card border-0 shadow-sm mb-4">
+          <div className="card-body p-4">
+            <h6 className="fw-bold mb-3">
+              <i className="bi bi-cash-stack me-2" />
+              {t("orderStatus.paymentNotify")}
+            </h6>
+            {submitted ? (
+              <div className="text-success">
+                <i className="bi bi-check-circle me-1" />
+                {t("orderStatus.paymentAlready")}
+                {order.paymentLastFive && (
+                  <span className="text-muted ms-2">
+                    ({t("orderStatus.paymentLastFive")}: {order.paymentLastFive})
+                  </span>
+                )}
+              </div>
+            ) : (
+              <>
+                <p className="text-muted small mb-3">{t("orderStatus.paymentNotifyHint")}</p>
+                <div className="row g-2 align-items-end">
+                  <div className="col-5">
+                    <label className="form-label small mb-1">{t("orderStatus.paymentLastFive")}</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      maxLength={5}
+                      pattern="\d{5}"
+                      placeholder={t("orderStatus.paymentLastFivePlaceholder")}
+                      value={lastFive}
+                      onChange={(e) => setLastFive(e.target.value.replace(/\D/g, "").slice(0, 5))}
+                    />
+                  </div>
+                  <div className="col-5">
+                    <label className="form-label small mb-1">{t("orderStatus.paymentAmount")}</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      placeholder={t("orderStatus.paymentAmountPlaceholder")}
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-2">
+                    <button
+                      className="btn btn-primary w-100"
+                      disabled={lastFive.length !== 5 || !amount || submitting}
+                      onClick={handlePaymentNotify}
+                    >
+                      {submitting ? "..." : t("orderStatus.paymentSubmit")}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Pending payment hint */}
       {!order.isPaid && (

@@ -116,9 +116,20 @@
     "pickupStore": "Pickup Store",
     "items": "Items Ordered",
     "statusPaid": "Paid",
+    "statusVerifying": "Verifying",
     "statusPending": "Awaiting Payment",
     "pendingTitle": "Payment Reminder",
-    "pendingHint": "We'll send payment details to your email after confirming your order. Please check your inbox."
+    "pendingHint": "We'll send payment details to your email after confirming your order. Please check your inbox.",
+    "paymentNotify": "Report Payment",
+    "paymentNotifyHint": "After transferring, please fill in the details below so we can verify your payment.",
+    "paymentLastFive": "Last 5 digits of account",
+    "paymentLastFivePlaceholder": "e.g. 12345",
+    "paymentAmount": "Amount transferred",
+    "paymentAmountPlaceholder": "Enter the amount you transferred",
+    "paymentSubmit": "Submit",
+    "paymentSuccess": "Payment report submitted, thank you!",
+    "paymentAlready": "Payment reported",
+    "paymentNotifiedAt": "Reported at"
   },
   "checkout": {
     "title": "Checkout",
@@ -311,6 +322,7 @@
       "createdAt": "Created At",
       "action": "Action",
       "paid": "Paid",
+      "verifying": "Verifying",
       "unpaid": "Unpaid",
       "view": "View",
       "delete": "Delete"
@@ -411,9 +423,15 @@
     "total": "Total",
     "payStatus": "Payment Status",
     "paid": "Paid",
+    "verifying": "Verifying",
     "unpaid": "Unpaid",
     "confirmDelete": "Confirm Delete",
-    "save": "Save Changes"
+    "save": "Save Changes",
+    "paymentNotify": "Payment Report",
+    "paymentLastFive": "Last 5 digits",
+    "paymentAmount": "Amount",
+    "paymentNotifiedAt": "Reported at",
+    "noPaymentNotify": "Not yet reported"
   },
   "shipping": {
     "title": "Shipping Information",

@@ -102,11 +102,13 @@ function AdminOrders() {
                   </td>
                   <td className="text-center">
                     <span
-                      className={`badge ${order.isPaid ? "bg-success" : "bg-danger"}`}
+                      className={`badge ${order.isPaid ? "bg-success" : order.paymentNotifiedAt ? "bg-warning text-dark" : "bg-danger"}`}
                     >
                       {order.isPaid
                         ? t("admin.orders.paid")
-                        : t("admin.orders.unpaid")}
+                        : order.paymentNotifiedAt
+                          ? t("admin.orders.verifying")
+                          : t("admin.orders.unpaid")}
                     </span>
                   </td>
                   <td>{formatDate(order.createAt)}</td>

@@ -116,9 +116,20 @@
     "pickupStore": "取貨門市",
     "items": "訂購品項",
     "statusPaid": "已付款",
+    "statusVerifying": "待確認",
     "statusPending": "等待付款",
     "pendingTitle": "付款提醒",
-    "pendingHint": "我們確認訂單後會將匯款資訊寄至您的 Email，請留意信箱。"
+    "pendingHint": "我們確認訂單後會將匯款資訊寄至您的 Email，請留意信箱。",
+    "paymentNotify": "回報匯款",
+    "paymentNotifyHint": "匯款後請填寫以下資訊，方便我們對帳。",
+    "paymentLastFive": "匯款帳號後五碼",
+    "paymentLastFivePlaceholder": "例：12345",
+    "paymentAmount": "匯款金額",
+    "paymentAmountPlaceholder": "請輸入實際匯款金額",
+    "paymentSubmit": "送出回報",
+    "paymentSuccess": "匯款回報已送出，謝謝！",
+    "paymentAlready": "已回報匯款",
+    "paymentNotifiedAt": "回報時間"
   },
   "checkout": {
     "title": "結帳頁面",
@@ -311,6 +322,7 @@
       "createdAt": "建立時間",
       "action": "操作",
       "paid": "已付款",
+      "verifying": "待確認",
       "unpaid": "未付款",
       "view": "查看",
       "delete": "刪除"
@@ -411,9 +423,15 @@
     "total": "總計",
     "payStatus": "付款狀態",
     "paid": "已付款",
+    "verifying": "待確認",
     "unpaid": "未付款",
     "confirmDelete": "確認刪除",
-    "save": "儲存變更"
+    "save": "儲存變更",
+    "paymentNotify": "匯款回報",
+    "paymentLastFive": "帳號後五碼",
+    "paymentAmount": "匯款金額",
+    "paymentNotifiedAt": "回報時間",
+    "noPaymentNotify": "尚未回報"
   },
   "shipping": {
     "title": "運費說明",

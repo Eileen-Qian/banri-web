@@ -77,7 +77,7 @@ function OrderSuccess() {
                     {order.orderNumber || order.id}
                   </div>
                 </div>
-                <span className={`badge ${order.isPaid ? "bg-success" : "bg-warning text-dark"}`}>
+                <span className={`badge ${order.isPaid ? "bg-success" : "bg-secondary"}`}>
                   {order.isPaid ? t("orderSuccess.paid") : t("orderSuccess.awaitingPayment")}
                 </span>
               </div>

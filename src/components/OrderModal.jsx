@@ -10,9 +10,9 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
   const { t } = useTranslation();
 
   const [isPaid, setIsPaid] = useState(!!tempOrder.isPaid);
-  const [prevOrderId, setPrevOrderId] = useState(tempOrder.id);
-  if (prevOrderId !== tempOrder.id) {
-    setPrevOrderId(tempOrder.id);
+  const [prevOrder, setPrevOrder] = useState(tempOrder);
+  if (prevOrder !== tempOrder) {
+    setPrevOrder(tempOrder);
     setIsPaid(!!tempOrder.isPaid);
   }
 
@@ -184,6 +184,35 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
 
                 <hr />
 
+                {/* Payment notification */}
+                <div className="mb-3">
+                  <h6>{t("orderModal.paymentNotify")}</h6>
+                  {tempOrder.paymentNotifiedAt ? (
+                    <table className="table table-borderless table-sm">
+                      <tbody>
+                        <tr>
+                          <td className="text-muted" style={{ width: "120px" }}>
+                            {t("orderModal.paymentLastFive")}
+                          </td>
+                          <td className="text-start">{tempOrder.paymentLastFive}</td>
+                        </tr>
+                        <tr>
+                          <td className="text-muted">{t("orderModal.paymentAmount")}</td>
+                          <td className="text-start">NT$ {currency(Number(tempOrder.paymentAmount))}</td>
+                        </tr>
+                        <tr>
+                          <td className="text-muted">{t("orderModal.paymentNotifiedAt")}</td>
+                          <td className="text-start">{new Date(tempOrder.paymentNotifiedAt).toLocaleString()}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  ) : (
+                    <p className="text-muted small">{t("orderModal.noPaymentNotify")}</p>
+                  )}
+                </div>
+
+                <hr />
+
                 {/* Products */}
                 <div className="mb-3">
                   <h6>{t("orderModal.products")}</h6>
@@ -195,7 +224,7 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                         <th style={{ width: "80px" }}>
                           {t("orderModal.qty")}
                         </th>
-                        <th style={{ width: "120px" }} className="text-end">
+                        <th style={{ width: "140px" }} className="text-end">
                           {t("orderModal.subtotal")}
                         </th>
                       </tr>
@@ -221,27 +250,20 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                           NT$ {currency(Number(tempOrder.total))}
                         </td>
                       </tr>
-                      {Number(tempOrder.shippingFee) > 0 && (
-                        <tr>
-                          <td colSpan="3" className="text-end">
-                            {t("cart.shippingFee")}
-                          </td>
-                          <td className="text-end">
-                            NT${" "}
-                            {currency(Number(tempOrder.shippingFee))}
-                          </td>
-                        </tr>
-                      )}
+                      <tr>
+                        <td colSpan="3" className="text-end">
+                          {t("cart.shippingFee")}
+                        </td>
+                        <td className="text-end text-muted">
+                          {t("shipping.afterConfirm")}
+                        </td>
+                      </tr>
                       <tr>
                         <td colSpan="3" className="text-end fw-bold">
                           {t("orderModal.total")}
                         </td>
                         <td className="text-end fw-bold">
-                          NT${" "}
-                          {currency(
-                            Number(tempOrder.total) +
-                              Number(tempOrder.shippingFee || 0),
-                          )}
+                          NT$ {currency(Number(tempOrder.total))}
                         </td>
                       </tr>
                     </tfoot>
@@ -262,12 +284,14 @@ function OrderModal({ modalType, tempOrder, closeModal, fetchOrders }) {
                       onChange={(e) => setIsPaid(e.target.checked)}
                     />
                     <label
-                      className={`form-check-label ${isPaid ? "text-success" : "text-danger"}`}
+                      className={`form-check-label ${isPaid ? "text-success" : tempOrder.paymentNotifiedAt ? "text-warning" : "text-danger"}`}
                       htmlFor="isPaid"
                     >
                       {isPaid
                         ? t("orderModal.paid")
-                        : t("orderModal.unpaid")}
+                        : tempOrder.paymentNotifiedAt
+                          ? t("orderModal.verifying")
+                          : t("orderModal.unpaid")}
                     </label>
                   </div>
                 </div>
