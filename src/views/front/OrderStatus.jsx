@@ -391,8 +391,8 @@ function OrderDetail({ t, order, email, onUpdate }) {
             ) : (
               <>
                 <p className="text-muted small mb-3">{t("orderStatus.paymentNotifyHint")}</p>
-                <div className="row g-2 align-items-end">
-                  <div className="col-5">
+                <div className="row g-2">
+                  <div className="col-6">
                     <label className="form-label small mb-1">{t("orderStatus.paymentLastFive")}</label>
                     <input
                       type="text"
@@ -404,7 +404,7 @@ function OrderDetail({ t, order, email, onUpdate }) {
                       onChange={(e) => setLastFive(e.target.value.replace(/\D/g, "").slice(0, 5))}
                     />
                   </div>
-                  <div className="col-5">
+                  <div className="col-6">
                     <label className="form-label small mb-1">{t("orderStatus.paymentAmount")}</label>
                     <input
                       type="number"
@@ -414,16 +414,14 @@ function OrderDetail({ t, order, email, onUpdate }) {
                       onChange={(e) => setAmount(e.target.value)}
                     />
                   </div>
-                  <div className="col-2">
-                    <button
-                      className="btn btn-primary w-100"
-                      disabled={lastFive.length !== 5 || !amount || submitting}
-                      onClick={handlePaymentNotify}
-                    >
-                      {submitting ? "..." : t("orderStatus.paymentSubmit")}
-                    </button>
-                  </div>
                 </div>
+                <button
+                  className="btn btn-primary w-100 mt-2"
+                  disabled={lastFive.length !== 5 || !amount || submitting}
+                  onClick={handlePaymentNotify}
+                >
+                  {submitting ? "..." : t("orderStatus.paymentSubmit")}
+                </button>
               </>
             )}
           </div>
