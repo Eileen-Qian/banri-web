@@ -92,6 +92,9 @@
     "step2": "確認後，我們會將匯款資訊寄至您填寫的 Email。",
     "step3": "完成匯款後，我們會盡快安排出貨。",
     "continueShopping": "繼續選購",
+    "lineLogin": "連結 LINE 接收訂單通知",
+    "lineHint": "連結後可透過 LINE 接收訂單狀態更新",
+    "lineLinked": "已連結 LINE，訂單通知已送出！",
     "checkStatus": "查詢訂單狀態",
     "notFound": "找不到此訂單"
   },

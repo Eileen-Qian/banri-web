@@ -92,6 +92,9 @@
     "step2": "Once confirmed, we'll send payment details to your email.",
     "step3": "After payment is received, we'll arrange delivery promptly.",
     "continueShopping": "Continue Shopping",
+    "lineLogin": "Get updates via LINE",
+    "lineHint": "Link your LINE to receive order status updates",
+    "lineLinked": "LINE linked! Order notification sent.",
     "checkStatus": "Check Order Status",
     "notFound": "Order not found"
   },

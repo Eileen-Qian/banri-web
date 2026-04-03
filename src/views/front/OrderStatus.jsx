@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
 import { useForm } from "react-hook-form";
 import { ThreeDots } from "react-loader-spinner";
@@ -25,8 +25,23 @@ function OrderStatus() {
     register,
     handleSubmit,
     getValues,
+    setValue,
     formState: { errors },
   } = useForm({ mode: "onSubmit", defaultValues: { email: "", orderId: "" } });
+
+  // Pre-fill orderNumber from URL query (e.g. from LINE notification)
+  useEffect(() => {
+    const hash = window.location.hash;
+    const queryIndex = hash.indexOf("?");
+    if (queryIndex === -1) return;
+    const params = new URLSearchParams(hash.slice(queryIndex));
+    const orderNumber = params.get("orderNumber");
+    if (orderNumber) {
+      setValue("orderId", orderNumber);
+      // Clean URL
+      window.history.replaceState(null, "", hash.slice(0, queryIndex));
+    }
+  }, [setValue]);
 
   const onSubmit = async (data) => {
     setLoading(true);

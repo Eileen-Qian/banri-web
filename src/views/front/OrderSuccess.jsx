@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { api, localizedName } from "../../utils/api";
 import { currency } from "../../utils/currency";
+import { getLineLoginUrl, exchangeLineCode } from "../../utils/lineLogin";
 
 function OrderSuccess() {
   const { id } = useParams();
@@ -14,7 +15,10 @@ function OrderSuccess() {
   const [order, setOrder] = useState(state?.order ?? null);
   const [loading, setLoading] = useState(!state?.order);
   const [error, setError] = useState("");
+  const [lineLinked, setLineLinked] = useState(false);
+  const [linkingLine, setLinkingLine] = useState(false);
 
+  // Fetch order if not from router state
   useEffect(() => {
     if (order) return;
     const fetchOrder = async () => {
@@ -29,6 +33,25 @@ function OrderSuccess() {
     };
     fetchOrder();
   }, [id, order]);
+
+  // Handle LINE Login callback (code saved by main.jsx)
+  useEffect(() => {
+    const code = sessionStorage.getItem("lineCallbackCode");
+    const orderId = sessionStorage.getItem("lineCallbackOrderId");
+    if (!code || !orderId || orderId !== id || lineLinked) return;
+    sessionStorage.removeItem("lineCallbackCode");
+    sessionStorage.removeItem("lineCallbackOrderId");
+    setLinkingLine(true);
+    exchangeLineCode(code)
+      .then(async (data) => {
+        await api.put(`/api/v1/orders/${orderId}/link-customer`, {
+          customerId: data.customerId,
+        });
+        setLineLinked(true);
+      })
+      .catch(() => {})
+      .finally(() => setLinkingLine(false));
+  }, [id, lineLinked]);
 
   if (loading) {
     return <p className="text-center fs-2 mt-5">{t("common.loading")}</p>;
@@ -157,6 +180,33 @@ function OrderSuccess() {
               </ol>
             </div>
           </div>
+
+          {/* LINE Login */}
+          {!order.customerId && (
+            <div className="card border-0 shadow-sm mb-4" style={{ background: "#eafbea" }}>
+              <div className="card-body p-4 text-center">
+                {lineLinked ? (
+                  <div className="text-success">
+                    <i className="bi bi-check-circle-fill me-2" />
+                    {t("orderSuccess.lineLinked")}
+                  </div>
+                ) : linkingLine ? (
+                  <p className="mb-0 text-muted">{t("common.loading")}</p>
+                ) : (
+                  <>
+                    <p className="small text-muted mb-2">{t("orderSuccess.lineHint")}</p>
+                    <a
+                      href={getLineLoginUrl(order.id)}
+                      className="btn btn-success"
+                    >
+                      <i className="bi bi-chat-dots-fill me-2" />
+                      {t("orderSuccess.lineLogin")}
+                    </a>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="text-center d-flex justify-content-center gap-3">
