@@ -107,8 +107,8 @@ function Cart() {
         </NavLink>
       </div>
 
-      {/* Items table */}
-      <div className="table-responsive">
+      {/* Desktop table */}
+      <div className="d-none d-md-block">
         <table className="table align-middle">
           <thead>
             <tr>
@@ -142,7 +142,7 @@ function Cart() {
                   </td>
                   <td>NT$ {currency(Number(v.price))}</td>
                   <td>
-                    <div className="input-group" style={{ width: "150px" }}>
+                    <div className="input-group" style={{ width: 150 }}>
                       <button
                         className="btn btn-outline-primary btn-sm"
                         type="button"
@@ -177,6 +177,69 @@ function Cart() {
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="d-md-none mt-3">
+        {items.map((item) => {
+          const v = item.variant;
+          const imgUrl = primaryImageUrl(v.product?.images || []);
+          const itemTotal = Number(v.price) * item.qty;
+          return (
+            <div key={item.id} className="d-flex gap-3 py-3 border-bottom">
+              {imgUrl && (
+                <img
+                  src={imgUrl}
+                  alt={localizedName(v.product?.name)}
+                  style={{ width: "80px", height: "80px", objectFit: "cover", flexShrink: 0 }}
+                />
+              )}
+              <div className="flex-grow-1">
+                <div className="d-flex justify-content-between align-items-start">
+                  <h6 className="mb-1 text-start">{localizedName(v.product?.name)}</h6>
+                  <button
+                    className="btn btn-outline-danger btn-sm ms-2"
+                    style={{ flexShrink: 0 }}
+                    onClick={() => removeItem(item.id)}
+                    disabled={loadingId === item.id}
+                  >
+                    {loadingId === item.id ? <Oval visible height="16" width="16" /> : <i className="bi bi-trash" />}
+                  </button>
+                </div>
+                <div className="text-muted small mb-2 text-start">
+                  {localizedName(v.size?.name)} · NT$ {currency(Number(v.price))}
+                </div>
+                <div className="d-flex justify-content-between align-items-center">
+                  <div className="input-group" style={{ width: 120 }}>
+                    <button
+                      className="btn btn-outline-primary btn-sm"
+                      type="button"
+                      onClick={() => updateQty(item.id, item.qty - 1)}
+                      disabled={item.qty <= 1 || loadingId === item.id}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      className="form-control form-control-sm text-center"
+                      value={item.qty}
+                      readOnly
+                    />
+                    <button
+                      className="btn btn-outline-primary btn-sm"
+                      type="button"
+                      onClick={() => updateQty(item.id, item.qty + 1)}
+                      disabled={item.qty >= 10 || loadingId === item.id}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <span className="fw-bold">NT$ {currency(itemTotal)}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Summary */}
