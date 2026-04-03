@@ -58,8 +58,8 @@ function Shipping() {
           <img
             src={i18n.language.startsWith("zh") ? convenienceShippingZh : convenienceShippingEn}
             alt={t("shipping.convenienceBoxAlt")}
-            className="img-fluid rounded mt-4 d-block mx-auto"
-            style={{ maxWidth: "600px" }}
+            className="img-fluid rounded mt-4 d-block mx-auto w-100"
+            style={{ maxWidth: 600 }}
           />
         </div>
       </div>
