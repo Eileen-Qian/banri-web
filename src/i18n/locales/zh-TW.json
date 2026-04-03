@@ -452,7 +452,7 @@
     "shippingNote": "運費將依配送方式另計，詳見",
     "shippingLink": "運費說明",
     "afterConfirm": "訂單確認後通知",
-    "checkoutNote": "送出訂單後，我們將確認訂單內容並以 Email 通知您運費金額與匯款資訊。"
+    "checkoutNote": "送出訂單後，我們將確認訂單內容並通知您運費金額與匯款資訊。"
   },
   "footer": {
     "copy": "© {year} 伴日 Banri. All rights reserved.",

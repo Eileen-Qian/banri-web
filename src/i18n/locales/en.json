@@ -452,7 +452,7 @@
     "shippingNote": "Shipping fees vary by method. See",
     "shippingLink": "Shipping Info",
     "afterConfirm": "Confirmed after review",
-    "checkoutNote": "After placing your order, we'll confirm the details and email you the shipping fee and payment info."
+    "checkoutNote": "After placing your order, we'll confirm the details and notify you of the shipping fee and payment information."
   },
   "footer": {
     "copy": "© {year} 伴日 Banri. All rights reserved.",

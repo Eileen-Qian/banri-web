@@ -35,7 +35,9 @@ const NEEDS_DISTRICT = ["delivery-private_delivery"];
 
 /* ── Order Summary Card ─────────────────────────────────────────────────── */
 
-function OrderSummary({ t, subtotal }) {
+function OrderSummary({ t, subtotal, selectedMethod }) {
+  const isSelfPickup = selectedMethod === "delivery-self_pickup";
+  const showShippingNote = selectedMethod && !isSelfPickup;
   return (
     <div className="card border-0 shadow-sm mb-4" style={{ background: "var(--bs-tertiary-bg, #f8f9fa)" }}>
       <div className="card-body px-4 py-3">
@@ -50,11 +52,14 @@ function OrderSummary({ t, subtotal }) {
           <span>NT$ {currency(subtotal)}</span>
         </div>
 
-        {/* Shipping note */}
-        <div className="d-flex justify-content-between mb-2">
-          <span className="text-body-secondary">{t("cart.shippingFee")}</span>
-          <span className="text-muted">{t("shipping.afterConfirm")}</span>
-        </div>
+        {showShippingNote && (
+          <>
+            <div className="d-flex justify-content-between mb-2">
+              <span className="text-body-secondary">{t("cart.shippingFee")}</span>
+              <span className="text-muted">{t("shipping.afterConfirm")}</span>
+            </div>
+          </>
+        )}
 
         <hr className="my-2" />
 
@@ -64,14 +69,16 @@ function OrderSummary({ t, subtotal }) {
           <span>NT$ {currency(subtotal)}</span>
         </div>
 
-        <small className="text-muted d-block mt-3" style={{ lineHeight: 1.7 }}>
-          <i className="bi bi-info-circle me-1" />
-          {t("shipping.checkoutNote")}
-          {<br />}
-          <a href="#/shipping" target="_blank" rel="noopener noreferrer" className="text-primary text-decoration-none">
-            {t("shipping.shippingLink")} <i className="bi bi-box-arrow-up-right" style={{ fontSize: "0.7em" }} />
-          </a>
-        </small>
+        {showShippingNote && (
+          <small className="text-muted d-block mt-3 lh-base">
+            <i className="bi bi-info-circle me-1" />
+            {t("shipping.checkoutNote")}
+            {<br />}
+            <a href="#/shipping" target="_blank" rel="noopener noreferrer" className="text-primary text-decoration-none">
+              {t("shipping.shippingLink")} <i className="bi bi-box-arrow-up-right small" />
+            </a>
+          </small>
+        )}
       </div>
     </div>
   );
@@ -699,7 +706,7 @@ function CheckOut() {
           </div>
 
           {/* Order summary card */}
-          <OrderSummary t={t} subtotal={subtotal} />
+          <OrderSummary t={t} subtotal={subtotal} selectedMethod={selectedMethod} />
 
           <button
             type="submit"
