@@ -1,0 +1,3 @@
+# Personal editor files — not shared with team
+launch.json
+*.local.*
